@@ -7,8 +7,10 @@
     "start": "node index.js"
   },
   "dependencies": {
+    "apiai-promise": "^1.0.0",
     "bottender": "0.15.7",
     "dotenv": "^6.0.0",
+    "google-spreadsheet-to-json": "^1.0.0",
     "messaging-api-messenger": "^0.7.8",
     "nodemon": "1.18.4"
   },

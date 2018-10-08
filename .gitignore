@@ -81,5 +81,9 @@ secret-geolocation-api.json
 
 # vscode configuration folder
 .vscode
+.vstags
 
 run-container.sh
+
+private_key.json
+credentials.json
