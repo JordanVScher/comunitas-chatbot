@@ -10,7 +10,6 @@ async function reloadSpreadSheet() {
 		spreadsheetId: process.env.SPREADKEY,
 		credentials: privateKey,
 		// hash: 'id',
-		// ignoreCol: 2,
 	}).then(result => result).catch((err) => {
 		console.log(err.message);
 		console.log(err.stack);
@@ -24,7 +23,7 @@ module.exports.reloadSpreadSheet = reloadSpreadSheet;
 
 // get the answer using the intent
 module.exports.findAnswerByIntent = async (array, keyword) => {
-	const answer = array.find(x => x.nomeIntent.trim() === keyword); return answer;
+	const answer = array.find(x => (x.nomeIntent ? x.nomeIntent.trim() : 'error') === keyword); return answer;
 };
 
 // get the answer using the id

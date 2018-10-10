@@ -16,11 +16,11 @@ module.exports.sendRelatedQuestions = async (context, sheetAnswers, question) =>
 	if (question.perguntasRelacionadas && question.perguntasRelacionadas.length > 0) { // check if entry has perguntasRelacionadas
 		let related = question.perguntasRelacionadas.toString().split(',').map(Number); // get questions from sheet and turn it into an array of Numbers
 		if (!related || related.length === 0) { // check if we found anything (error)
-			await context.sendText('Não temos mais perguntas relacionadas! Escreve aí.');
+			await attach.sendMainMenu(context);
 		} else {
 			related = await help.findAllAnswersById(sheetAnswers, related); // loading the questions
 			if (!related || related.length === 0) { // check if we found anything (error)
-				await context.sendText('Não temos mais perguntas relacionadas! Escreve aí.');
+				await context.sendText('Ocorreu um erro! Não temos mais perguntas relacionadas! Escreve aí.');
 			} else if (related.length === 1) { // only one question
 				await context.sendText('Que tal?', await attach.RelatedQuestionsQR(related));
 			} else { // more than one
@@ -28,6 +28,6 @@ module.exports.sendRelatedQuestions = async (context, sheetAnswers, question) =>
 			}
 		}
 	} else {
-		await context.sendText('Acabou :)');
+		await attach.sendMainMenu(context);
 	}
 };

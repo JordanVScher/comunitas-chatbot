@@ -16,3 +16,7 @@ module.exports.RelatedQuestionsQR = async (questions) => {
 
 	return { quick_replies: elements };
 };
+
+module.exports.sendMainMenu = async (context) => {
+	await context.sendText('Esse é o menu principal. Manda mais dúvidas!');
+};

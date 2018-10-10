@@ -1,6 +1,7 @@
 const { apiai } = require('./help');
 const help = require('./help');
 const answer = require('./answer');
+const attach = require('./attach');
 
 let sheetAnswers = '';
 async function initialLoading() {
@@ -8,9 +9,7 @@ async function initialLoading() {
 	if (sheetAnswers) {
 		console.log('Spreadsheet loaded succesfully!');
 		console.log(sheetAnswers);
-	} else {
-		console.log("Couldn't load Spreadsheet!");
-	}
+	} else { console.log("Couldn't load Spreadsheet!");	}
 }
 initialLoading();
 
@@ -35,20 +34,24 @@ module.exports = async (context) => {
 			} else if (context.event.isPostback) {
 				await context.setState({ dialog: context.event.postback.payload });
 			} else if (context.event.isText) {
-				await context.setState({ whatWasTyped: context.event.message.text }); // storing the text
-				await context.setState({ apiaiResp: await apiai.textRequest(context.state.whatWasTyped, { sessionId: context.session.user.id }) }); // asking dialogFlow
-				switch (context.state.apiaiResp.result.metadata.intentName) { // check which intent
-				case 'Fallback': // no answer found
-					await context.setState({ dialog: 'answerNotFound' });
-					break;
-				default: // all questions
-					await context.setState({ currentAnswer: await help.findAnswerByIntent(sheetAnswers, context.state.apiaiResp.result.metadata.intentName) }); // get question
-					if (context.state.currentAnswer && context.state.currentAnswer.respostaTexto1) { // check if question exists and has the main answer (error)
-						await context.setState({ dialog: 'answerFound' });
-					} else { await context.setState({ dialog: 'answerNotFound' }); }
-					break;
-				}
-			}
+				if (context.event.message.text === process.env.RELOAD_KEYWORD) {
+					await context.setState({ dialog: 'reload' });
+				} else {
+					await context.setState({ whatWasTyped: context.event.message.text }); // storing the text
+					await context.setState({ apiaiResp: await apiai.textRequest(context.state.whatWasTyped, { sessionId: context.session.user.id }) }); // asking dialogFlow
+					switch (context.state.apiaiResp.result.metadata.intentName) { // check which intent
+					case 'Fallback': // no answer found
+						await context.setState({ dialog: 'answerNotFound' });
+						break;
+					default: // all questions
+						await context.setState({ currentAnswer: await help.findAnswerByIntent(sheetAnswers, context.state.apiaiResp.result.metadata.intentName) }); // get question
+						if (context.state.currentAnswer && context.state.currentAnswer.respostaTexto1) { // check if question exists and has the main answer (error)
+							await context.setState({ dialog: 'answerFound' });
+						} else { await context.setState({ dialog: 'answerNotFound' }); }
+						break;
+					} // --end switch
+				} // --end else
+			} // --end isText
 			switch (context.state.dialog) {
 			case 'restart':
 				// falls throught
@@ -61,11 +64,15 @@ module.exports = async (context) => {
 			case 'answerFound':
 				await answer.sendAnswerInSheet(context, context.state.currentAnswer);
 				await answer.sendRelatedQuestions(context, sheetAnswers, context.state.currentAnswer);
-
-
 				break;
 			case 'answerNotFound':
 				await context.sendText('Não encontrei esse resposta!');
+				await attach.sendMainMenu(context);
+				break;
+			case 'reload':
+				sheetAnswers = await help.reloadSpreadSheet();
+				await context.sendText('Recarregamos as respostas!');
+				await attach.sendMainMenu(context);
 				break;
 			}
 		}
