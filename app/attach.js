@@ -5,7 +5,7 @@ module.exports.RelatedQuestionsQR = async (questions) => {
 
 
 	questions.forEach(async (element) => {
-		let title = element.pergunta;
+		let title = element.perguntaBotao;
 		if (title.length > 20) { title = title.slice(0, 20); }
 		elements.push({
 			content_type: 'text',

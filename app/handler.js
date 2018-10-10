@@ -7,7 +7,7 @@ async function initialLoading() {
 	sheetAnswers = await help.reloadSpreadSheet();
 	if (sheetAnswers) {
 		console.log('Spreadsheet loaded succesfully!');
-		// console.log(sheetAnswers);
+		console.log(sheetAnswers);
 	} else {
 		console.log("Couldn't load Spreadsheet!");
 	}

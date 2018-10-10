@@ -24,7 +24,7 @@ module.exports.reloadSpreadSheet = reloadSpreadSheet;
 
 // get the answer using the intent
 module.exports.findAnswerByIntent = async (array, keyword) => {
-	const answer = array.find(x => x.nomeIntent === keyword); return answer;
+	const answer = array.find(x => x.nomeIntent.trim() === keyword); return answer;
 };
 
 // get the answer using the id
@@ -37,7 +37,7 @@ module.exports.findAllAnswersById = async (answers, ids) => {
 	const results = [];
 	ids.forEach(async (element) => {
 		const found = answers.find(x => x.idDaPergunta === element);
-		if (found) { results.push(found); }
+		if (found) { results.push({ perguntaBotao: found.perguntaBotao, idDaPergunta: found.idDaPergunta }); }
 	});
 	return results;
 };
