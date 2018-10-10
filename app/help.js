@@ -1,9 +1,13 @@
 const dialogFlow = require('apiai-promise');
 const gsjson = require('google-spreadsheet-to-json');
+const Sentry = require('raven');
 
 const privateKey = require('./private_key.json');
 
 module.exports.apiai = dialogFlow(process.env.DIALOGFLOW_TOKEN);
+
+Sentry.config(process.env.SENTRY_DSN).install();
+module.exports.Sentry = Sentry;
 
 async function reloadSpreadSheet() {
 	const results = await gsjson({
@@ -35,7 +39,7 @@ module.exports.findAnswerByID = async (array, id) => {
 module.exports.findAllAnswersById = async (answers, ids) => {
 	const results = [];
 	ids.forEach(async (element) => {
-		const found = answers.find(x => x.idDaPergunta === element);
+		const found = answers.find0(x => x.idDaPergunta === element);
 		if (found) { results.push({ perguntaBotao: found.perguntaBotao, idDaPergunta: found.idDaPergunta }); }
 	});
 	return results;

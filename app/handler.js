@@ -1,5 +1,6 @@
 const { apiai } = require('./help');
 const help = require('./help');
+const { Sentry } = require('./help');
 const answer = require('./answer');
 const attach = require('./attach');
 
@@ -8,7 +9,7 @@ async function initialLoading() {
 	sheetAnswers = await help.reloadSpreadSheet();
 	if (sheetAnswers) {
 		console.log('Spreadsheet loaded succesfully!');
-		console.log(sheetAnswers);
+		// console.log(sheetAnswers);
 	} else { console.log("Couldn't load Spreadsheet!");	}
 }
 initialLoading();
@@ -77,6 +78,7 @@ module.exports = async (context) => {
 			}
 		}
 	} catch (err) {
+		await Sentry.captureException(err);
 		const date = new Date();
 		console.log(`Parece que aconteceu um erro as ${date.toLocaleTimeString('pt-BR')} de ${date.getDate()}/${date.getMonth() + 1} =>`);
 		console.log(err);
