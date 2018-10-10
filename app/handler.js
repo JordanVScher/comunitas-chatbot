@@ -1,6 +1,6 @@
 const { apiai } = require('./help');
 const help = require('./help');
-const { Sentry } = require('./help');
+const { Raven } = require('./help');
 const answer = require('./answer');
 const attach = require('./attach');
 
@@ -20,11 +20,14 @@ module.exports = async (context) => {
 		if (!context.event.isDelivery && !context.event.isEcho) {
 			if (context.event.isQuickReply) {
 				if (context.event.message.quick_reply.payload.slice(0, 8) === 'question') {
-					await context.setState({ questionID: context.event.message.quick_reply.payload.replace('question', '') });
-					await context.setState({ currentAnswer: await help.findAnswerByID(sheetAnswers, context.state.questionID) }); // get question
-					if (context.state.currentAnswer && context.state.currentAnswer.respostaTexto1) { // check if question exists and has the main answer (error)
-						await context.setState({ dialog: 'answerFound' });
-					} else { await context.setState({ dialog: 'answerNotFound' }); }
+					await Raven.context(async () => {
+						await context.setState({ questionID: context.event.message.quick_reply.payload.replace('question', '') });
+						await Raven.setContext({ user: { username: context.session.user.first_name, payload: context.state.questionID } });
+						await context.setState({ currentAnswer: await help.findAnswerByID(sheetAnswers, context.state.questionID) }); // get question
+						if (context.state.currentAnswer && context.state.currentAnswer.respostaTexto1) { // check if question exists and has the main answer (error)
+							await context.setState({ dialog: 'answerFound' });
+						} else { await context.setState({ dialog: 'answerNotFound' }); }
+					});
 				} else {
 					await context.setState({ dialog: context.event.quickReply.payload });
 				}
@@ -38,19 +41,22 @@ module.exports = async (context) => {
 				if (context.event.message.text === process.env.RELOAD_KEYWORD) {
 					await context.setState({ dialog: 'reload' });
 				} else {
-					await context.setState({ whatWasTyped: context.event.message.text }); // storing the text
-					await context.setState({ apiaiResp: await apiai.textRequest(context.state.whatWasTyped, { sessionId: context.session.user.id }) }); // asking dialogFlow
-					switch (context.state.apiaiResp.result.metadata.intentName) { // check which intent
-					case 'Fallback': // no answer found
-						await context.setState({ dialog: 'answerNotFound' });
-						break;
-					default: // all questions
-						await context.setState({ currentAnswer: await help.findAnswerByIntent(sheetAnswers, context.state.apiaiResp.result.metadata.intentName) }); // get question
-						if (context.state.currentAnswer && context.state.currentAnswer.respostaTexto1) { // check if question exists and has the main answer (error)
-							await context.setState({ dialog: 'answerFound' });
-						} else { await context.setState({ dialog: 'answerNotFound' }); }
-						break;
-					} // --end switch
+					Raven.context(async () => {
+						await context.setState({ whatWasTyped: context.event.message.text }); // storing the text
+						await context.setState({ apiaiResp: await apiai.textRequest(context.state.whatWasTyped, { sessionId: context.session.user.id }) }); // asking dialogFlow
+						Raven.setContext({ user: { username: context.session.user.first_name, whatWasTyped: context.state.whatWasTyped, apiaiResp: context.state.apiaiResp } });
+						switch (context.state.apiaiResp.result.metadata.intentName) { // check which intent
+						case 'Fallback': // no answer found
+							await context.setState({ dialog: 'answerNotFound' });
+							break;
+						default: // all questions
+							await context.setState({ currentAnswer: await help.findAnswerByIntent(sheetAnswers, context.state.apiaiResp.result.metadata.intentName) }); // get question
+							if (context.state.currentAnswer && context.state.currentAnswer.respostaTexto1) { // check if question exists and has the main answer (error)
+								await context.setState({ dialog: 'answerFound' });
+							} else { await context.setState({ dialog: 'answerNotFound' }); }
+							break;
+						} // --end switch
+					});
 				} // --end else
 			} // --end isText
 			switch (context.state.dialog) {
@@ -63,8 +69,14 @@ module.exports = async (context) => {
 				+ '\n\nPor exemplo: Quero saber o que é ABC');
 				break;
 			case 'answerFound':
-				await answer.sendAnswerInSheet(context, context.state.currentAnswer);
-				await answer.sendRelatedQuestions(context, sheetAnswers, context.state.currentAnswer);
+				await Raven.context(async () => {
+					await Raven.setContext({ user: { username: context.session.user.first_name, whatWasTyped: context.state.whatWasTyped, currentAnswer: context.state.currentAnswer } });
+					await answer.sendAnswerInSheet(context, context.state.currentAnswer);
+				});
+				await Raven.context(async () => {
+					await Raven.setContext({ user: { username: context.session.user.first_name, currentAnswer: context.state.currentAnswer } });
+					await answer.sendRelatedQuestions(context, sheetAnswers, context.state.currentAnswer);
+				});
 				break;
 			case 'answerNotFound':
 				await context.sendText('Não encontrei esse resposta!');
@@ -78,7 +90,7 @@ module.exports = async (context) => {
 			}
 		}
 	} catch (err) {
-		await Sentry.captureException(err);
+		await Raven.captureException(err);
 		const date = new Date();
 		console.log(`Parece que aconteceu um erro as ${date.toLocaleTimeString('pt-BR')} de ${date.getDate()}/${date.getMonth() + 1} =>`);
 		console.log(err);

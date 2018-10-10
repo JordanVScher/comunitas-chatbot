@@ -14,17 +14,17 @@ module.exports.sendAnswerInSheet = async (context, question) => {
 // send the related questions of a question
 module.exports.sendRelatedQuestions = async (context, sheetAnswers, question) => {
 	if (question.perguntasRelacionadas && question.perguntasRelacionadas.length > 0) { // check if entry has perguntasRelacionadas
-		let related = question.perguntasRelacionadas.toString().split(',').map(Number); // get questions from sheet and turn it into an array of Numbers
-		if (!related || related.length === 0) { // check if we found anything (error)
+		await context.setState({ related: question.perguntasRelacionadas.toString().split(',').map(Number) }); // get questions from sheet and turn it into an array of Numbers
+		if (!context.state.related || context.state.related.length === 0) { // check if we found anything (error)
 			await attach.sendMainMenu(context);
 		} else {
-			related = await help.findAllAnswersById(sheetAnswers, related); // loading the questions
-			if (!related || related.length === 0) { // check if we found anything (error)
+			await context.setState({ related: await help.findAllAnswersById(sheetAnswers, context.state.related) }); // check if we found anything (error)
+			if (!context.state.related || context.state.related.length === 0) { // check if we found anything (error)
 				await context.sendText('Ocorreu um erro! Não temos mais perguntas relacionadas! Escreve aí.');
-			} else if (related.length === 1) { // only one question
-				await context.sendText('Que tal?', await attach.RelatedQuestionsQR(related));
+			} else if (context.state.related.length === 1) { // only one question
+				await context.sendText('Que tal?', await attach.RelatedQuestionsQR(context.state.related));
 			} else { // more than one
-				await context.sendText('Sabia mais!', await attach.RelatedQuestionsQR(related));
+				await context.sendText('Sabia mais!', await attach.RelatedQuestionsQR(context.state.related));
 			}
 		}
 	} else {

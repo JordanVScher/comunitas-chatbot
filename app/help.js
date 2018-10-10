@@ -1,15 +1,19 @@
 const dialogFlow = require('apiai-promise');
 const gsjson = require('google-spreadsheet-to-json');
-const Sentry = require('raven');
+const Raven = require('raven');
 
-const privateKey = require('./private_key.json');
 
 module.exports.apiai = dialogFlow(process.env.DIALOGFLOW_TOKEN);
 
-Sentry.config(process.env.SENTRY_DSN).install();
-module.exports.Sentry = Sentry;
+Raven.config(process.env.SENTRY_DSN, {
+	environment: process.env.ENV,
+	captureUnhandledRejections: true,
+}).install();
+module.exports.Raven = Raven;
 
-async function reloadSpreadSheet() {
+const privateKey = require('./private_key.json');
+
+module.exports.reloadSpreadSheet = async () => {
 	const results = await gsjson({
 		spreadsheetId: process.env.SPREADKEY,
 		credentials: privateKey,
@@ -19,11 +23,8 @@ async function reloadSpreadSheet() {
 		console.log(err.stack);
 		return undefined;
 	});
-
 	return results;
-}
-
-module.exports.reloadSpreadSheet = reloadSpreadSheet;
+};
 
 // get the answer using the intent
 module.exports.findAnswerByIntent = async (array, keyword) => {
@@ -39,7 +40,7 @@ module.exports.findAnswerByID = async (array, id) => {
 module.exports.findAllAnswersById = async (answers, ids) => {
 	const results = [];
 	ids.forEach(async (element) => {
-		const found = answers.find0(x => x.idDaPergunta === element);
+		const found = answers.find(x => x.idDaPergunta === element);
 		if (found) { results.push({ perguntaBotao: found.perguntaBotao, idDaPergunta: found.idDaPergunta }); }
 	});
 	return results;
