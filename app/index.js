@@ -17,6 +17,7 @@ if (messageWaiting) { bot.use(withTyping({ delay: messageWaiting })); }
 
 const handler = require('./handler.js');
 
+
 bot.onEvent(handler);
 
 const server = createServer(bot);
