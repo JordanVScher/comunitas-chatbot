@@ -1,6 +1,6 @@
 const { apiai } = require('./help');
 const help = require('./help');
-const { Raven } = require('./help');
+const { Sentry } = require('./help');
 const answer = require('./answer');
 const attach = require('./attach');
 
@@ -31,12 +31,16 @@ module.exports = async (context) => {
 			} else if (context.event.isPostback) {
 				await context.setState({ dialog: context.event.postback.payload });
 			} else if (context.event.isText) {
-				await context.setState({ whatWasTyped: context.event.message.text }); // storing the text
-				if (context.state.whatWasTyped === process.env.RELOAD_KEYWORD) {
-					await context.setState({ dialog: 'reload' });
-				} else {
-					await answer.handleText(context, apiai, sheetAnswers);
-				} // --end else
+				await Sentry.configureScope(async (scope) => {
+					scope.setUser({ username: context.session.user.first_name });
+					scope.setExtra('whatWasTyped', context.state.whatWasTyped);
+					await context.setState({ whatWasTyped: context.event.message.text }); // storing the text
+					if (context.state.whatWasTyped === process.env.RELOAD_KEYWORD) {
+						await context.setState({ dialog: 'reload' });
+					} else {
+						await answer.handleText(context, apiai, sheetAnswers);
+					} // --end else
+				}); // --end sentry
 			} // --end isText
 			switch (context.state.dialog) {
 			case 'restart':
@@ -63,7 +67,7 @@ module.exports = async (context) => {
 			}
 		}
 	} catch (error) {
-		await Raven.captureException(error, { user: { username: context.session.user.first_name, function: 'atHandler', session: context.session.user } });
+		await Sentry.captureException(error);
 		const date = new Date();
 		console.log(`Parece que aconteceu um erro as ${date.toLocaleTimeString('pt-BR')} de ${date.getDate()}/${date.getMonth() + 1} =>`);
 		console.log(error);

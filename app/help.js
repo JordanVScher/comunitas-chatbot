@@ -1,15 +1,20 @@
 const dialogFlow = require('apiai-promise');
 const gsjson = require('google-spreadsheet-to-json');
-const Raven = require('raven');
+// const Raven = require('raven');
+
+const Sentry = require('@sentry/node');
+
+Sentry.init({ dsn: process.env.SENTRY_DSN, environment: process.env.ENV });
+module.exports.Sentry = Sentry;
 
 
 module.exports.apiai = dialogFlow(process.env.DIALOGFLOW_TOKEN);
 
-Raven.config(process.env.SENTRY_DSN, {
-	environment: process.env.ENV,
-	captureUnhandledRejections: true,
-}).install();
-module.exports.Raven = Raven;
+// Raven.config(process.env.SENTRY_DSN, {
+// 	environment: process.env.ENV,
+// 	captureUnhandledRejections: true,
+// }).install();
+// module.exports.Raven = Raven;
 
 
 const privateKey = require('./private_key.json');
