@@ -1,6 +1,5 @@
 const help = require('./help');
 const attach = require('./attach');
-// const { Sentry } = require('./help');
 
 module.exports.handleText = async (context, apiai, sheetAnswers) => {
 	await context.setState({ apiaiResp: await apiai.textRequest(context.state.whatWasTyped, { sessionId: context.session.user.id }) }); // asking dialogFlow
@@ -17,12 +16,14 @@ module.exports.handleText = async (context, apiai, sheetAnswers) => {
 	} // --end switch
 };
 
-module.exports.handleQuestionQuickReply = async (context, sheetAnswers) => {
-	await context.setState({ questionID: context.event.message.quick_reply.payload.replace('question', '') });
+// handles both quick_replies and postback buttons for questions
+// Obs: you need to set state.payload before calling this function. e.g.:await context.setState({ payload: context.event.message.quick_reply.payload }); // for quick_replies
+module.exports.handleQuestionButton = async (context, sheetAnswers) => {
+	await context.setState({ questionID: context.state.payload.replace('question', '') });
 	await context.setState({ currentAnswer: await help.findAnswerByID(sheetAnswers, context.state.questionID) }); // get question
 	if (context.state.currentAnswer && context.state.currentAnswer.respostaTexto1) { // check if question exists and has the main answer (error)
-		await context.setState({ dialog: 'answerFound' });
-	} else { await context.setState({ dialog: 'answerNotFound' }); }
+		await context.setState({ dialog: 'answerFound' }); return true;
+	} await context.setState({ dialog: 'answerNotFound' }); return false;
 };
 
 // send the answers we have TODO: check if links are valid, add timer
@@ -32,7 +33,7 @@ module.exports.sendAnswerInSheet = async (context, question) => {
 	if (question.respostaImagem) { await context.sendImage(question.respostaImagem); }
 	if (question.respostaVideo) { await context.sendVideo(question.respostaVideo); }
 	if (question.respostaAudio) { await context.sendAudio(question.respostaAudio); }
-	if (question.respostaArquivo) { await context.sendFile(question.respostaAudio); }
+	if (question.respostaArquivo) { await context.sendFile(question.respostaArquivo); }
 };
 
 // send the related questions of a question

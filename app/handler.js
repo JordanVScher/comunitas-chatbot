@@ -1,15 +1,15 @@
-const { apiai } = require('./help');
-const help = require('./help');
-const { Sentry } = require('./help');
-const answer = require('./answer');
-const attach = require('./attach');
+const { apiai } = require('./util/help');
+const help = require('./util/help');
+const { Sentry } = require('./util/help');
+const answer = require('./util/answer');
+const attach = require('./util/attach');
 
 let sheetAnswers = '';
 async function initialLoading() {
 	sheetAnswers = await help.reloadSpreadSheet();
 	if (sheetAnswers) {
 		console.log('Spreadsheet loaded succesfully!');
-		// console.log(sheetAnswers);
+		console.log(sheetAnswers);
 	} else { console.log("Couldn't load Spreadsheet!");	}
 }
 initialLoading();
@@ -19,8 +19,9 @@ module.exports = async (context) => {
 	try {
 		if (!context.event.isDelivery && !context.event.isEcho) {
 			if (context.event.isQuickReply) {
-				if (context.event.message.quick_reply.payload.slice(0, 8) === 'question') {
-					await answer.handleQuestionQuickReply(context, sheetAnswers);
+				await context.setState({ payload: context.event.message.quick_reply.payload });
+				if (context.state.payload.slice(0, 8) === 'question') {
+					await answer.handleQuestionButton(context, sheetAnswers);
 				} else {
 					await context.setState({ dialog: context.event.quickReply.payload });
 				}
@@ -31,16 +32,12 @@ module.exports = async (context) => {
 			} else if (context.event.isPostback) {
 				await context.setState({ dialog: context.event.postback.payload });
 			} else if (context.event.isText) {
-				await Sentry.configureScope(async (scope) => {
-					scope.setUser({ username: context.session.user.first_name });
-					scope.setExtra('whatWasTyped', context.state.whatWasTyped);
-					await context.setState({ whatWasTyped: context.event.message.text }); // storing the text
-					if (context.state.whatWasTyped === process.env.RELOAD_KEYWORD) {
-						await context.setState({ dialog: 'reload' });
-					} else {
-						await answer.handleText(context, apiai, sheetAnswers);
-					} // --end else
-				}); // --end sentry
+				await context.setState({ whatWasTyped: context.event.message.text }); // storing the text
+				if (context.state.whatWasTyped === process.env.RELOAD_KEYWORD) {
+					await context.setState({ dialog: 'reload' });
+				} else {
+					await answer.handleText(context, apiai, sheetAnswers);
+				} // --end else
 			} // --end isText
 			switch (context.state.dialog) {
 			case 'restart':
@@ -67,10 +64,14 @@ module.exports = async (context) => {
 			}
 		}
 	} catch (error) {
-		await Sentry.captureException(error);
 		const date = new Date();
 		console.log(`Parece que aconteceu um erro as ${date.toLocaleTimeString('pt-BR')} de ${date.getDate()}/${date.getMonth() + 1} =>`);
 		console.log(error);
 		await context.sendText('Ops. Tive um erro interno. Tente novamente.');
+		await Sentry.configureScope(async (scope) => {
+			scope.setUser({ username: context.session.user.first_name });
+			scope.setExtra('state', context.state);
+			throw error;
+		});
 	}
 };

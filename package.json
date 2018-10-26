@@ -9,12 +9,18 @@
   "dependencies": {
     "@sentry/node": "^4.1.1",
     "apiai-promise": "^1.0.0",
+    "async-child-process": "^1.1.1",
     "bottender": "0.15.7",
+    "dialogflow": "^0.7.0",
     "dotenv": "^6.0.0",
+    "fs-extra": "^7.0.0",
+    "get-audio-duration": "0.0.1",
     "google-spreadsheet-to-json": "^1.0.0",
     "messaging-api-messenger": "^0.7.8",
     "nodemon": "1.18.4",
-    "raven": "^2.6.4"
+    "raven": "^2.6.4",
+    "requisition": "^1.7.0",
+    "util.promisify": "^1.0.0"
   },
   "devDependencies": {
     "eslint": "^5.6.1",
