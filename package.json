@@ -20,6 +20,7 @@
     "nodemon": "1.18.4",
     "query-string": "^6.2.0",
     "raven": "^2.6.4",
+    "remove-accents": "^0.4.2",
     "requisition": "^1.7.0",
     "util.promisify": "^1.0.0"
   },

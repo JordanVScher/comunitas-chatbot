@@ -3,7 +3,7 @@ const attach = require('./attach');
 const { Sentry } = require('./help');
 
 module.exports.handleText = async (context, apiai, sheetAnswers) => {
-	await context.setState({ apiaiResp: await apiai.textRequest(context.state.whatWasTyped, { sessionId: context.session.user.id }) }); // asking dialogFlow
+	await context.setState({ apiaiResp: await apiai.textRequest(await help.formatString(context.state.whatWasTyped), { sessionId: context.session.user.id }) }); // asking dialogFlow
 	console.log('intentName', context.state.apiaiResp.result.metadata.intentName);
 
 	switch (context.state.apiaiResp.result.metadata.intentName) { // check which intent
@@ -57,8 +57,8 @@ module.exports.sendRelatedQuestions = async (context, sheetAnswers, question) =>
 				await context.setState({ related: await help.findAllAnswersById(sheetAnswers, context.state.related) }); // check if we found anything (error)
 				if (!context.state.related || context.state.related.length === 0) { // check if we found anything (error)
 					await context.sendText('Não temos mais perguntas relacionadas! Escreva sua dúvida.');
-				} else if (context.state.related.length === 1) { // only one question
-					await context.sendText('Que tal?', await attach.RelatedQuestionsQR(context.state.related));
+				// } else if (context.state.related.length === 1) { // only one question
+				// 	await context.sendText('Que tal?', await attach.RelatedQuestionsQR(context.state.related));
 				} else { // more than one
 					await context.sendText('Sabia mais!', await attach.RelatedQuestionsQR(context.state.related));
 				}

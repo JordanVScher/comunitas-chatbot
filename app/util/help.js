@@ -1,5 +1,6 @@
 const dialogFlow = require('apiai-promise');
 const gsjson = require('google-spreadsheet-to-json');
+const accents = require('remove-accents');
 
 const Sentry = require('@sentry/node');
 
@@ -44,3 +45,11 @@ module.exports.findAllAnswersById = async (answers, ids) => {
 };
 
 module.exports.getRandomFrasesFallback = myArray => myArray[Math.floor(Math.random() * myArray.length)];
+
+async function formatString(text) {
+	let result = text.toLowerCase();
+	result = await result.replace(/([\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2580-\u27BF]|\uD83E[\uDD10-\uDDFF])/g, '');
+	result = await accents.remove(result);
+	return result.trim();
+}
+module.exports.formatString = formatString;
