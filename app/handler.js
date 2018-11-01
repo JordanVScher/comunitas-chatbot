@@ -9,7 +9,7 @@ async function initialLoading() {
 	sheetAnswers = await help.reloadSpreadSheet();
 	if (sheetAnswers) {
 		console.log('Spreadsheet loaded succesfully!');
-		console.log(sheetAnswers);
+		// console.log(sheetAnswers);
 	} else { console.log("Couldn't load Spreadsheet!");	}
 }
 initialLoading();
@@ -49,6 +49,8 @@ module.exports = async (context) => {
 				+ '\n\nPor exemplo: Quero saber o que é ABC');
 				break;
 			case 'answerFound':
+				console.log(context.state.currentAnswer);
+
 				await answer.sendAnswerInSheet(context, context.state.currentAnswer);
 				await answer.sendRelatedQuestions(context, sheetAnswers, context.state.currentAnswer);
 				break;
@@ -69,9 +71,7 @@ module.exports = async (context) => {
 		console.log(error);
 		await context.sendText('Ops. Tive um erro interno. Tente novamente.');
 		await Sentry.configureScope(async (scope) => {
-			scope.setUser({ username: context.session.user.first_name });
-			scope.setExtra('state', context.state);
-			throw error;
+			scope.setUser({ username: context.session.user.first_name }); scope.setExtra('state', context.state); throw error;
 		});
 	}
 };
