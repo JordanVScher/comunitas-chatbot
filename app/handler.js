@@ -3,6 +3,8 @@ const help = require('./util/help');
 const { Sentry } = require('./util/help');
 const answer = require('./util/answer');
 const attach = require('./util/attach');
+const flow = require('./util/flow');
+// const maApi = require('./util/MA_api');
 
 let sheetAnswers = '';
 async function initialLoading() {
@@ -14,10 +16,15 @@ async function initialLoading() {
 }
 initialLoading();
 
+// const { pageID } = process.env;
 
 module.exports = async (context) => {
 	try {
 		if (!context.event.isDelivery && !context.event.isEcho) {
+			// await context.setState({ politicianData: await maApi.getPoliticianData(pageID) });
+			// console.log(context.state.politicianData);
+
+
 			if (context.event.isQuickReply) {
 				await context.setState({ payload: context.event.message.quick_reply.payload });
 				if (context.state.payload.slice(0, 8) === 'question') {
@@ -46,7 +53,7 @@ module.exports = async (context) => {
 				await context.sendText(`Olá, ${context.session.user.first_name}. Espero que esteja bem! `
 				+ 'Sou Iara, a assistente digital da Comunitas e estou aqui para te orientar de forma correta e eficiente sobre o CAUC.');
 				await context.sendText('Como posso te ajudar? Basta digitar de forma breve qual sua dúvida sobre o CAUC. '
-				+ '\n\nPor exemplo: Quero saber o que é ABC');
+				+ '\n\nPor exemplo: Quero saber o que é o CAUC');
 				break;
 			case 'answerFound':
 				console.log(context.state.currentAnswer);
@@ -55,7 +62,7 @@ module.exports = async (context) => {
 				await answer.sendRelatedQuestions(context, sheetAnswers, context.state.currentAnswer);
 				break;
 			case 'answerNotFound':
-				await context.sendText('Não encontrei esse resposta!');
+				await context.sendText(await help.getRandomFrasesFallback(flow.frasesFallback));
 				await attach.sendMainMenu(context);
 				break;
 			case 'reload':

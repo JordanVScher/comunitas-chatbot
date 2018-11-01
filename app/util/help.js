@@ -42,3 +42,5 @@ module.exports.findAllAnswersById = async (answers, ids) => {
 	});
 	return results;
 };
+
+module.exports.getRandomFrasesFallback = myArray => myArray[Math.floor(Math.random() * myArray.length)];
