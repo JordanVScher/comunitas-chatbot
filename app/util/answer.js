@@ -60,7 +60,11 @@ module.exports.sendRelatedQuestions = async (context, sheetAnswers, question) =>
 				// } else if (context.state.related.length === 1) { // only one question
 				// 	await context.sendText('Que tal?', await attach.RelatedQuestionsQR(context.state.related));
 				} else { // more than one
-					await context.sendText('Sabia mais!', await attach.RelatedQuestionsQR(context.state.related));
+					await context.setState({ textToSend: 'Saiba mais!' });
+					if (question.textoPreliminar && question.textoPreliminar.length > 0) {
+						await context.setState({ textToSend: question.textoPreliminar });
+					}
+					await context.sendText(context.state.textToSend, await attach.RelatedQuestionsQR(context.state.related));
 				}
 			}
 		} catch (error) {
