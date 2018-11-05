@@ -4,6 +4,7 @@ const { Sentry } = require('./util/help');
 const answer = require('./util/answer');
 const attach = require('./util/attach');
 const flow = require('./util/flow');
+const mailer = require('./util/mailer');
 // const maApi = require('./util/MA_api');
 
 let sheetAnswers = '';
@@ -55,15 +56,23 @@ module.exports = async (context) => {
 				await context.sendText('Como posso te ajudar? Basta digitar de forma breve qual sua dúvida sobre o CAUC. '
 				+ '\n\nPor exemplo: Quero saber o que é o CAUC');
 				break;
+			case 'dontLeaveMail':
+				await mailer.sendSimpleError(context.session.user, context.state.whatWasTyped);
+				await attach.sendMainMenu(context);
+				break;
 			case 'answerFound':
 				console.log(context.state.currentAnswer);
-
 				await answer.sendAnswerInSheet(context, context.state.currentAnswer);
 				await answer.sendRelatedQuestions(context, sheetAnswers, context.state.currentAnswer);
 				break;
 			case 'answerNotFound':
-				await context.sendText(await help.getRandomFrasesFallback(flow.frasesFallback));
-				await attach.sendMainMenu(context);
+				// await context.sendText(await help.getRandomFrasesFallback(flow.frasesFallback));
+				await context.sendText('Não entendi sua pergunta. ');
+				if (!context.state.email) {
+					await context.sendText('Se quiser, poderei responder sua dúvida por e-mail. Mas para isso precisarei que você deixe o seu e-mail conosco, tudo bem? '
+					+ 'Se não quiser é só continuar perguntando.', await flow.eMailFirst);
+				}
+				// await attach.sendMainMenu(context);
 				break;
 			case 'reload':
 				sheetAnswers = await help.reloadSpreadSheet();
