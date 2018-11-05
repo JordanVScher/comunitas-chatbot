@@ -18,10 +18,17 @@ const transporter = nodemailer.createTransport({
 	debug: true,
 });
 
+function handleUserName(userData) {
+	let userName = 'Sem Nome';
+	if (userData.first_name) {
+		userName = userData.first_name;
+		if (userData.last_name) { userName = `${userName} ${userData.last_name}`; }
+	}
+
+	return userName;
+}
 
 function sendSimpleError(userMail, userText = 'Não tenho a dúvida? Entre em contato com os devs!') {
-	console.log('I am here');
-
 	let userName = 'Sem Nome';
 	if (userMail.first_name) {
 		userName = userMail.first_name;
@@ -46,15 +53,16 @@ function sendSimpleError(userMail, userText = 'Não tenho a dúvida? Entre em co
 
 module.exports.sendSimpleError = sendSimpleError;
 
-// when any user sends their doubt with their e-mail we send one e-mail immediately
-function sendError(userName = 'erro', userText = 'entre em contato', userMail = 'imediatamente') {
+
+function sendErrorMail(userData, userText, userMail) {
+	const userName = handleUserName(userData);
 	const mailOptions = {
 		from: user,
 		to: sendTo,
-		subject: `Cora: mensagem de ${userName}`,
-		text: `Recebemos uma nova mensagem de ${userName}. `
-            + `\nA mensagem: ${userText}`
-            + `\nO email para responder: ${userMail}`,
+		subject: `Iara: dúvida de ${userName}`,
+		text: `Recebemos uma nova dúvida de ${userName}. `
+			+ `\nA dúvida: ${userText}`
+			+ `\nO email que o usuário deixou para respondê-lo: ${userMail}`,
 	};
 
 	transporter.sendMail(mailOptions, (error, info) => {
@@ -64,24 +72,26 @@ function sendError(userName = 'erro', userText = 'entre em contato', userMail = 
 		} else if (info) {
 			console.log(`Email sent: ${info.response}`);
 			// send confirmation e-mail to user
-			const confirmation = {
-				from: user,
-				to: userMail,
-				subject: 'RenovaBR: Recebemos sua dúvida!',
-				text: `Olá, ${userName}.\nRecebemos a dúvida que você nos enviou. `
-                    + 'Iremos responder o mais breve possível.'
-                    + `\n\nVocê enviou: ${userText}`
-                    + `\n\n\nNão é você? Houve algum engano? Acredita que não deveria ter recebido esse e-mail? Reporte-nos em ${sendTo}`,
-			};
-			transporter.sendMail(confirmation, (error2, info2) => {
-				if (error) {
-					console.log(`Couldn't send user confirmation e-mail: ${error2}`);
-				} else if (info2) {
-					console.log(`Email sent: ${info2.response}`);
-				}
-			});
+
+			if (userText && userText.length > 0) {
+				const confirmation = {
+					from: user,
+					to: userMail,
+					subject: 'Iara, o chatbot do Comunitas: Recebemos sua dúvida!',
+					text: 'Olá.\nRecebemos a dúvida que você nos enviou em nossa página do Facebook. '
+					+ 'Iremos responder o mais breve possível.'
+					+ `\n\nVocê enviou: ${userText}`
+					+ `\n\n\nNão é você? Houve algum engano? Acredita que não deveria ter recebido esse e-mail? Reporte-nos em ${sendTo}`,
+				};
+				transporter.sendMail(confirmation, (error2, info2) => {
+					if (error) {
+						console.log(`Couldn't send user confirmation e-mail: ${error2}`);
+					} else if (info2) {
+						console.log(`Email sent: ${info2.response}`);
+					}
+				});
+			}
 		}
 	});
 }
-
-module.exports.sendError = sendError;
+module.exports.sendErrorMail = sendErrorMail;

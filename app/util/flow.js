@@ -8,6 +8,7 @@ module.exports.frasesFallback = ['Essa resposta eu não tenho 🤔. Muito boa a 
 
 module.exports.eMailFirst = {
 	quick_replies: [
+		{ content_type: 'user_email' },
 		{
 			content_type: 'text',
 			title: 'Deixar meu e-mail',
@@ -16,6 +17,37 @@ module.exports.eMailFirst = {
 		{
 			content_type: 'text',
 			title: 'Não deixar e-mail',
+			payload: 'dontLeaveMail',
+		},
+	],
+};
+module.exports.eMailSecond = {
+	quick_replies: [
+		{ content_type: 'user_email' },
+		{
+			content_type: 'text',
+			title: 'Trocar meu e-mail',
+			payload: 'leaveMail',
+		},
+		{
+			content_type: 'text',
+			title: 'Mandar nesse e-mail',
+			payload: 'sendMail',
+		},
+		{
+			content_type: 'text',
+			title: 'Não quero a resposta',
+			payload: 'dontLeaveMail',
+		},
+	],
+};
+
+module.exports.askMail = {
+	quick_replies: [
+		{ content_type: 'user_email' },
+		{
+			content_type: 'text',
+			title: 'Sair',
 			payload: 'dontLeaveMail',
 		},
 	],

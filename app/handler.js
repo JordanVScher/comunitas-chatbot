@@ -5,6 +5,7 @@ const answer = require('./util/answer');
 const attach = require('./util/attach');
 const flow = require('./util/flow');
 const mailer = require('./util/mailer');
+const dialogs = require('./util/dialogs');
 // const maApi = require('./util/MA_api');
 
 let sheetAnswers = '';
@@ -22,14 +23,12 @@ initialLoading();
 module.exports = async (context) => {
 	try {
 		if (!context.event.isDelivery && !context.event.isEcho) {
-			// await context.setState({ politicianData: await maApi.getPoliticianData(pageID) });
-			// console.log(context.state.politicianData);
-
-
 			if (context.event.isQuickReply) {
 				await context.setState({ payload: context.event.message.quick_reply.payload });
 				if (context.state.payload.slice(0, 8) === 'question') {
 					await answer.handleQuestionButton(context, sheetAnswers);
+				} else if (help.mailRegex.test(context.event.quickReply.payload)) {
+					await dialogs.handleMail(context, context.event.quickReply.payload);
 				} else {
 					await context.setState({ dialog: context.event.quickReply.payload });
 				}
@@ -40,10 +39,12 @@ module.exports = async (context) => {
 			} else if (context.event.isPostback) {
 				await context.setState({ dialog: context.event.postback.payload });
 			} else if (context.event.isText) {
-				await context.setState({ whatWasTyped: context.event.message.text }); // storing the text
-				if (context.state.whatWasTyped === process.env.RELOAD_KEYWORD) {
+				if (context.event.message.text === process.env.RELOAD_KEYWORD) { // admin types reload spreadsheet keyword
 					await context.setState({ dialog: 'reload' });
+				} else if (context.state.dialog === 'leaveMail' || context.state.dialog === 'reAskMail') { // user leaves e-mail
+					await dialogs.handleMail(context, context.event.message.text);
 				} else {
+					await context.setState({ whatWasTyped: context.event.message.text }); // storing the text
 					await answer.handleText(context, apiai, sheetAnswers);
 				} // --end else
 			} // --end isText
@@ -56,23 +57,29 @@ module.exports = async (context) => {
 				await context.sendText('Como posso te ajudar? Basta digitar de forma breve qual sua dúvida sobre o CAUC. '
 				+ '\n\nPor exemplo: Quero saber o que é o CAUC');
 				break;
-			case 'dontLeaveMail':
-				await mailer.sendSimpleError(context.session.user, context.state.whatWasTyped);
-				await attach.sendMainMenu(context);
-				break;
 			case 'answerFound':
 				console.log(context.state.currentAnswer);
 				await answer.sendAnswerInSheet(context, context.state.currentAnswer);
 				await answer.sendRelatedQuestions(context, sheetAnswers, context.state.currentAnswer);
 				break;
 			case 'answerNotFound':
-				// await context.sendText(await help.getRandomFrasesFallback(flow.frasesFallback));
-				await context.sendText('Não entendi sua pergunta. ');
-				if (!context.state.email) {
-					await context.sendText('Se quiser, poderei responder sua dúvida por e-mail. Mas para isso precisarei que você deixe o seu e-mail conosco, tudo bem? '
-					+ 'Se não quiser é só continuar perguntando.', await flow.eMailFirst);
-				}
-				// await attach.sendMainMenu(context);
+				await answer.answerNotFound(context);
+				break;
+			case 'leaveMail':
+				await context.sendText('Qual o seu e-mail? Pode digitá-lo e nos mandar.', await flow.askMail);
+				break;
+			case 'dontLeaveMail':
+				if (context.state.userMail && context.state.userMail.length > 0) {
+					await mailer.sendErrorMail(context.session.user, context.state.whatWasTyped, context.state.userMail);
+				} else { await mailer.sendSimpleError(context.session.user, context.state.whatWasTyped); }
+				await attach.sendMainMenu(context);
+				break;
+			case 'reAskMail':
+				await context.sendText('Esse e-mail não parece estar correto! Tente um formato como "iara@gmail.com".', await flow.askMail);
+				break;
+			case 'sendMail':
+				await mailer.sendErrorMail(context.session.user, context.state.whatWasTyped, context.state.userMail);
+				await attach.sendMainMenu(context);
 				break;
 			case 'reload':
 				sheetAnswers = await help.reloadSpreadSheet();

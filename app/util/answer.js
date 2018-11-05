@@ -1,6 +1,19 @@
 const help = require('./help');
 const attach = require('./attach');
 const { Sentry } = require('./help');
+const flow = require('./flow');
+
+module.exports.answerNotFound = async (context) => {
+	// await context.sendText(await help.getRandomFrasesFallback(flow.frasesFallback));
+	await context.sendText('Não entendi sua pergunta. ');
+	if (!context.state.userMail || context.state.userMail.length === 0) {
+		await context.sendText('Se quiser, poderei responder sua dúvida por e-mail. Mas para isso precisarei que você deixe o seu e-mail conosco, tudo bem? '
+			+ 'Se não quiser é só continuar perguntando.', await flow.eMailFirst);
+	} else {
+		await context.sendText(`Se quiser, poderei responder sua dúvida por e-mail. Pelo que me lembro o seu e-mail é ${context.state.userMail}. `
+			+ 'Deseja trocar o e-mail?', await flow.eMailSecond);
+	}
+};
 
 module.exports.handleText = async (context, apiai, sheetAnswers) => {
 	await context.setState({ apiaiResp: await apiai.textRequest(await help.formatString(context.state.whatWasTyped), { sessionId: context.session.user.id }) }); // asking dialogFlow

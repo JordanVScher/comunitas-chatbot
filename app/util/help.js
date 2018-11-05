@@ -2,13 +2,16 @@ const dialogFlow = require('apiai-promise');
 const gsjson = require('google-spreadsheet-to-json');
 const accents = require('remove-accents');
 
+// # Sentry
 const Sentry = require('@sentry/node');
 
 Sentry.init({ dsn: process.env.SENTRY_DSN, environment: process.env.ENV });
 module.exports.Sentry = Sentry;
 
+// # Dialogflow
 module.exports.apiai = dialogFlow(process.env.DIALOGFLOW_TOKEN);
 
+// # Google Spreadsheet
 const privateKey = require('../private_key.json');
 
 module.exports.reloadSpreadSheet = async () => {
@@ -24,6 +27,10 @@ module.exports.reloadSpreadSheet = async () => {
 	return results;
 };
 
+// # Regex
+module.exports.mailRegex = new RegExp(/\S+@\S+/);
+
+// # helpful functions
 // get the answer using the intent
 module.exports.findAnswerByIntent = async (array, keyword) => {
 	const answer = array.find(x => (x.nomeIntent ? x.nomeIntent.trim() : 'error') === keyword); return answer;
