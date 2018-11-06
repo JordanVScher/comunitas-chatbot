@@ -24,6 +24,7 @@ module.exports = async (context) => {
 	try {
 		if (!context.event.isDelivery && !context.event.isEcho) {
 			if (context.event.isQuickReply) {
+				await context.setState({ onAnswerNotFound: false });
 				await context.setState({ payload: context.event.message.quick_reply.payload });
 				if (context.state.payload.slice(0, 8) === 'question') {
 					await answer.handleQuestionButton(context, sheetAnswers);
@@ -95,6 +96,11 @@ module.exports = async (context) => {
 				await context.sendText('Siga nossa página e compartilhe nossos esforços. 👍');
 				await attach.sendShareButton(context);
 				await context.sendText('Mais dúvidas? É só me mandar!');
+				break;
+			case 'help':
+				await context.setState({ whatWasTyped: '' });
+				await context.sendText(flow.helpText.first);
+				await context.sendText(flow.helpText.second, flow.help);
 				break;
 			case 'reload':
 				sheetAnswers = await help.reloadSpreadSheet();

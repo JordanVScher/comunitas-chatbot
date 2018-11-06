@@ -20,6 +20,9 @@ module.exports.handleText = async (context, apiai, sheetAnswers) => {
 	console.log('intentName', context.state.apiaiResp.result.metadata.intentName);
 
 	switch (context.state.apiaiResp.result.metadata.intentName) { // check which intent
+	case 'help':
+		await context.setState({ dialog: 'help' });
+		break;
 	case 'Fallback': // no answer found
 		await context.setState({ dialog: 'answerNotFound' });
 		break;

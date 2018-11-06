@@ -29,7 +29,7 @@ function handleUserName(userData) {
 	return userName;
 }
 
-function sendSimpleError(context, userText = 'Não tenho a dúvida? Entre em contato com os devs!') {
+function sendSimpleError(context, userText) {
 	const userName = handleUserName(context.session.user);
 
 	const mailOptions = {

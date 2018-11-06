@@ -63,3 +63,20 @@ module.exports.share = {
 		},
 	],
 };
+
+module.exports.helpText = {
+	first: 'Estou aqui para te ajudar! Basta você digitar sua dúvida abaixo e eu tentarei de responder. '
+		+ 'Ainda sou uma robô novinha e, por isso, posso não ter todas as respostas mas com cada dúvida nova eu também aprendo!',
+	second: 'O que eu não souber te responder a nossa equipe do Comunitas te responderá através do seu e-mail. '
+		+ 'Abaixo você poderá compartilhar e seguir nossa página! Se não conseguir ver nenhum botão fique tranquilo, você ainda poderá me consultar normalmente, só com texto.',
+};
+
+module.exports.help = {
+	quick_replies: [
+		{
+			content_type: 'text',
+			title: 'Compartilhar',
+			payload: 'share',
+		},
+	],
+};
