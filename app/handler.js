@@ -3,6 +3,7 @@ const help = require('./util/help');
 const { Sentry } = require('./util/help');
 const answer = require('./util/answer');
 const attach = require('./util/attach');
+const audio = require('./util/audio');
 const flow = require('./util/flow');
 const mailer = require('./util/mailer');
 const dialogs = require('./util/dialogs');
@@ -32,12 +33,29 @@ module.exports = async (context) => {
 				} else {
 					await context.setState({ dialog: context.event.quickReply.payload });
 				}
-			} else if (context.event.hasAttachment || context.event.isLikeSticker || context.event.isFile
-				|| context.event.isVideo || context.event.isImage || context.event.isFallback || context.event.isLocation) {
-				await answer.handleActionOnAnswerNotFound(context);
-				await context.sendText('Não entendi sua última mensagem. Por favor, utilize apenas mensagens de texto ou clique nos botões.');
+			} else if (context.event.isLikeSticker || context.event.isFile || context.event.isVideo
+				|| context.event.isImage || context.event.isFallback || context.event.isLocation) {
+				await dialogs.handleActionOnAnswerNotFound(context);
+				await context.sendText('Não entendi sua última mensagem. Por favor, mensagens de texto para as suas dúvidas ou clique nos botões.');
+			} else if (context.event.isAudio) {
+				console.log('Passei aqui');
+				await context.setState({ dialog: '' });
+				await dialogs.handleActionOnAnswerNotFound(context);
+				await context.sendText('Áudio? Me dê um momento para processar.');
+				if (context.event.audio.url) {
+					await context.setState({ audio: await audio.voiceRequest(context.event.audio.url, context.session.user.id) });
+					if (context.state.audio && context.state.audio.txtMag && context.state.audio.txtMag !== '') { // there was an error (or the user just didn't say anything)
+						await context.sendText(context.state.audio.txtMag);
+					} else if (!context.state.audio || !context.state.audio.intentName) {
+						await context.sendText('Não entendi o que você disse. Tente me perguntar novamente ou digitar a sua dúvida.');
+					} else {
+						await context.setState({ whatWasTyped: context.state.audio.whatWasSaid });
+						await context.setState({ intentName: context.state.audio.intentName });
+						await answer.handleText(context, context.state.intentName, sheetAnswers);
+					}
+				}
 			} else if (context.event.isPostback) {
-				await answer.handleActionOnAnswerNotFound(context);
+				await dialogs.handleActionOnAnswerNotFound(context);
 				await context.setState({ dialog: context.event.postback.payload });
 			} else if (context.event.isText) { //
 				if (context.event.message.text === process.env.RELOAD_KEYWORD) { // admin types reload spreadsheet keyword
@@ -45,7 +63,7 @@ module.exports = async (context) => {
 				} else if (context.state.dialog === 'leaveMail' || context.state.dialog === 'reAskMail') { // user leaves e-mail
 					await dialogs.handleMail(context, context.event.message.text);
 				} else {
-					await answer.handleActionOnAnswerNotFound(context);
+					await dialogs.handleActionOnAnswerNotFound(context);
 					await context.setState({ whatWasTyped: context.event.message.text }); // storing the text
 					await context.setState({ apiaiResp: await apiai.textRequest(await help.formatString(context.state.whatWasTyped), { sessionId: context.session.user.id }) });
 					await answer.handleText(context, context.state.apiaiResp.result.metadata.intentName, sheetAnswers);
@@ -86,7 +104,7 @@ module.exports = async (context) => {
 				await attach.sendMainMenu(context);
 				break;
 			case 'reAskMail':
-				await context.sendText('Esse e-mail não parece estar correto! Tente um formato como "iara@gmail.com".', await flow.askMail);
+				await context.sendText('Esse e-mail não parece estar correto. Tente um formato como "iara@gmail.com".', await flow.askMail);
 				break;
 			case 'sendMail':
 				await mailer.sendErrorMail(context, context.state.whatWasTyped, context.state.userMail);
@@ -112,7 +130,7 @@ module.exports = async (context) => {
 		const date = new Date();
 		console.log(`Parece que aconteceu um erro as ${date.toLocaleTimeString('pt-BR')} de ${date.getDate()}/${date.getMonth() + 1} =>`);
 		console.log(error);
-		await context.sendText('Ops. Tive um erro interno. Tente novamente.');
+		await context.sendText('Ops. Tive um erro interno. Escreva sua dúvida!');
 		await Sentry.configureScope(async (scope) => {
 			scope.setUser({ username: context.session.user.first_name }); scope.setExtra('state', context.state); throw error;
 		});

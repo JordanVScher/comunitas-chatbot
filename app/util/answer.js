@@ -2,7 +2,6 @@ const help = require('./help');
 const attach = require('./attach');
 const { Sentry } = require('./help');
 const flow = require('./flow');
-const { sendSimpleError } = require('./mailer');
 
 module.exports.answerNotFound = async (context) => {
 	// await context.sendText(await help.getRandomFrasesFallback(flow.frasesFallback));
@@ -15,15 +14,6 @@ module.exports.answerNotFound = async (context) => {
 			+ 'Deseja trocar o e-mail?', await flow.eMailSecond);
 	}
 };
-
-// handles user not clicking any of the quick_reply buttons on answerNotFound. // Remember: we still have to send the e-mail with the doubt, regardless of what the user do.
-// if onAnswerNotFound === true, the only way of changing it to false is by sending any e-mail. Quick_reply and user typing his e-mail shouldn't trigger this.
-module.exports.handleActionOnAnswerNotFound = async (context) => {
-	if (context.state.onAnswerNotFound === true) { // check if user did something other than clicking on any of the buttons on AnswerNotFound (We still have to send the e-mail)
-		await sendSimpleError(context, context.state.whatWasTyped); // sending old text, before it's updated with the new user text
-	}
-};
-
 
 module.exports.handleText = async (context, intentName, sheetAnswers) => {
 	console.log('intentName', intentName);
