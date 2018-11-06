@@ -2,6 +2,7 @@ const help = require('./help');
 const attach = require('./attach');
 const { Sentry } = require('./help');
 const flow = require('./flow');
+const { sendSimpleError } = require('./mailer');
 
 module.exports.answerNotFound = async (context) => {
 	// await context.sendText(await help.getRandomFrasesFallback(flow.frasesFallback));
@@ -15,11 +16,18 @@ module.exports.answerNotFound = async (context) => {
 	}
 };
 
-module.exports.handleText = async (context, apiai, sheetAnswers) => {
-	await context.setState({ apiaiResp: await apiai.textRequest(await help.formatString(context.state.whatWasTyped), { sessionId: context.session.user.id }) }); // asking dialogFlow
-	console.log('intentName', context.state.apiaiResp.result.metadata.intentName);
+// handles user not clicking any of the quick_reply buttons on answerNotFound. // Remember: we still have to send the e-mail with the doubt, regardless of what the user do.
+// if onAnswerNotFound === true, the only way of changing it to false is by sending any e-mail. Quick_reply and user typing his e-mail shouldn't trigger this.
+module.exports.handleActionOnAnswerNotFound = async (context) => {
+	if (context.state.onAnswerNotFound === true) { // check if user did something other than clicking on any of the buttons on AnswerNotFound (We still have to send the e-mail)
+		await sendSimpleError(context, context.state.whatWasTyped); // sending old text, before it's updated with the new user text
+	}
+};
 
-	switch (context.state.apiaiResp.result.metadata.intentName) { // check which intent
+
+module.exports.handleText = async (context, intentName, sheetAnswers) => {
+	console.log('intentName', intentName);
+	switch (intentName) { // check which intent
 	case 'help':
 		await context.setState({ dialog: 'help' });
 		break;
@@ -27,7 +35,7 @@ module.exports.handleText = async (context, apiai, sheetAnswers) => {
 		await context.setState({ dialog: 'answerNotFound' });
 		break;
 	default: // all questions
-		await context.setState({ currentAnswer: await help.findAnswerByIntent(sheetAnswers, context.state.apiaiResp.result.metadata.intentName) }); // get question
+		await context.setState({ currentAnswer: await help.findAnswerByIntent(sheetAnswers, intentName) }); // get question
 		if (context.state.currentAnswer && context.state.currentAnswer.respostaTexto1) { // check if question exists and has the main answer (error)
 			await context.setState({ dialog: 'answerFound' });
 		} else { await context.setState({ dialog: 'answerNotFound' }); }

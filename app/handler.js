@@ -24,7 +24,6 @@ module.exports = async (context) => {
 	try {
 		if (!context.event.isDelivery && !context.event.isEcho) {
 			if (context.event.isQuickReply) {
-				await context.setState({ onAnswerNotFound: false });
 				await context.setState({ payload: context.event.message.quick_reply.payload });
 				if (context.state.payload.slice(0, 8) === 'question') {
 					await answer.handleQuestionButton(context, sheetAnswers);
@@ -33,26 +32,26 @@ module.exports = async (context) => {
 				} else {
 					await context.setState({ dialog: context.event.quickReply.payload });
 				}
-			} else if (context.event.hasAttachment || context.event.isLikeSticker
-				|| context.event.isFile || context.event.isVideo || context.event.isAudio
-				|| context.event.isImage || context.event.isFallback || context.event.isLocation) {
+			} else if (context.event.hasAttachment || context.event.isLikeSticker || context.event.isFile
+				|| context.event.isVideo || context.event.isImage || context.event.isFallback || context.event.isLocation) {
+				await answer.handleActionOnAnswerNotFound(context);
 				await context.sendText('Não entendi sua última mensagem. Por favor, utilize apenas mensagens de texto ou clique nos botões.');
 			} else if (context.event.isPostback) {
+				await answer.handleActionOnAnswerNotFound(context);
 				await context.setState({ dialog: context.event.postback.payload });
-			} else if (context.event.isText) {
-				if (context.state.onAnswerNotFound === true) { // check if user wrote something on AnswerNotFound instead of clicking on any of the buttons (We still have to send the e-mail)
-					await mailer.sendSimpleError(context, context.state.whatWasTyped); // sending old text, before it's updated with the new user text
-					await context.setState({ onAnswerNotFound: false });
-				}
+			} else if (context.event.isText) { //
 				if (context.event.message.text === process.env.RELOAD_KEYWORD) { // admin types reload spreadsheet keyword
 					await context.setState({ dialog: 'reload' });
 				} else if (context.state.dialog === 'leaveMail' || context.state.dialog === 'reAskMail') { // user leaves e-mail
 					await dialogs.handleMail(context, context.event.message.text);
 				} else {
+					await answer.handleActionOnAnswerNotFound(context);
 					await context.setState({ whatWasTyped: context.event.message.text }); // storing the text
-					await answer.handleText(context, apiai, sheetAnswers);
+					await context.setState({ apiaiResp: await apiai.textRequest(await help.formatString(context.state.whatWasTyped), { sessionId: context.session.user.id }) });
+					await answer.handleText(context, context.state.apiaiResp.result.metadata.intentName, sheetAnswers);
 				} // --end else
 			} // --end isText
+			// --end event handler
 			switch (context.state.dialog) {
 			case 'restart':
 				// falls throught

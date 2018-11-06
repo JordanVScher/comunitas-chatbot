@@ -40,6 +40,7 @@ function sendSimpleError(context, userText) {
 	};
 
 	transporter.sendMail(mailOptions, async (error, info) => {
+		await context.setState({ onAnswerNotFound: false });
 		if (error) {
 			console.log(error);
 			await Sentry.configureScope(async (scope) => {
@@ -57,6 +58,7 @@ module.exports.sendSimpleError = sendSimpleError;
 
 
 function sendErrorMail(context, userText, userMail) {
+	context.setState({ onAnswerNotFound: false });
 	const userName = handleUserName(context.session.user);
 	const mailOptions = {
 		from: user,
@@ -69,7 +71,7 @@ function sendErrorMail(context, userText, userMail) {
 
 
 	transporter.sendMail(mailOptions, async (error, info) => {
-		console.log(`User ${userName} mail status:`);
+		await context.setState({ onAnswerNotFound: false });
 		if (error) {
 			console.log(`Couldn't send e-mail: ${error}`);
 			await attach.sendMainMenu(context);
