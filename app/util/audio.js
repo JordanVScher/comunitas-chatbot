@@ -37,9 +37,6 @@ async function checkAndDelete(name) {
 
 async function voiceRequest(urlMessenger, sessionID) {
 	// The path to identify the agent that owns the created intent
-	console.log(projectId);
-	console.log(sessionID);
-
 	const sessionPath = sessionClient.sessionPath(projectId, sessionID);
 
 	const fileIn = `${sessionID}.mp4`;

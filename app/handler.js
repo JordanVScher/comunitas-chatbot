@@ -38,7 +38,6 @@ module.exports = async (context) => {
 				await dialogs.handleActionOnAnswerNotFound(context);
 				await context.sendText('Não entendi sua última mensagem. Por favor, mensagens de texto para as suas dúvidas ou clique nos botões.');
 			} else if (context.event.isAudio) {
-				console.log('Passei aqui');
 				await context.setState({ dialog: '' });
 				await dialogs.handleActionOnAnswerNotFound(context);
 				await context.sendText('Áudio? Me dê um momento para processar.');
