@@ -1,0 +1,10 @@
+version: '2.1'
+
+services:
+  comunitas-chatbot:
+    image: comunitas-chatbot
+    build: .
+    environment:
+      NODE_ENV: production
+    ports:
+      - 2400:2400
