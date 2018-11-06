@@ -5,6 +5,7 @@ module.exports.frasesFallback = ['Essa resposta eu não tenho 🤔. Muito boa a 
 	'Humm, essa resposta eu não sei. Irei procurar com nossa equipe e te respondemos.',
 	'Não encontrei sua resposta. Mas, irei encaminhar para nossa equipe, que irá te responder. 🤗'];
 
+module.exports.iaraAvatar = 'https://gallery.mailchimp.com/926cb477483bcd8122304bc56/images/31bc6941-cd82-4f19-81ca-32ad94ae917b.jpg';
 
 module.exports.eMailFirst = {
 	quick_replies: [
@@ -49,6 +50,16 @@ module.exports.askMail = {
 			content_type: 'text',
 			title: 'Sair',
 			payload: 'dontLeaveMail',
+		},
+	],
+};
+
+module.exports.share = {
+	quick_replies: [
+		{
+			content_type: 'text',
+			title: 'Compartilhar',
+			payload: 'share',
 		},
 	],
 };

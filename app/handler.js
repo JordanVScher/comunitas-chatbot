@@ -52,6 +52,7 @@ module.exports = async (context) => {
 			case 'restart':
 				// falls throught
 			case 'greetings':
+				await context.sendImage(flow.iaraAvatar);
 				await context.sendText(`Olá, ${context.session.user.first_name}. Espero que esteja bem! `
 				+ 'Sou Iara, a assistente digital da Comunitas e estou aqui para te orientar de forma correta e eficiente sobre o CAUC.');
 				await context.sendText('Como posso te ajudar? Basta digitar de forma breve qual sua dúvida sobre o CAUC. '
@@ -80,6 +81,11 @@ module.exports = async (context) => {
 			case 'sendMail':
 				await mailer.sendErrorMail(context.session.user, context.state.whatWasTyped, context.state.userMail);
 				await attach.sendMainMenu(context);
+				break;
+			case 'share':
+				await context.sendText('Siga nossa página e compartilhe nossos esforços. 👍');
+				await attach.sendShareButton(context);
+				await context.sendText('Mais dúvidas? É só me mandar!');
 				break;
 			case 'reload':
 				sheetAnswers = await help.reloadSpreadSheet();
