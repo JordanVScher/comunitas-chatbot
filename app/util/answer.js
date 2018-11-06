@@ -15,16 +15,17 @@ module.exports.answerNotFound = async (context) => {
 	}
 };
 
-module.exports.handleText = async (context, apiai, sheetAnswers) => {
-	await context.setState({ apiaiResp: await apiai.textRequest(await help.formatString(context.state.whatWasTyped), { sessionId: context.session.user.id }) }); // asking dialogFlow
-	console.log('intentName', context.state.apiaiResp.result.metadata.intentName);
-
-	switch (context.state.apiaiResp.result.metadata.intentName) { // check which intent
+module.exports.handleText = async (context, intentName, sheetAnswers) => {
+	console.log('intentName', intentName);
+	switch (intentName) { // check which intent
+	case 'help':
+		await context.setState({ dialog: 'help' });
+		break;
 	case 'Fallback': // no answer found
 		await context.setState({ dialog: 'answerNotFound' });
 		break;
 	default: // all questions
-		await context.setState({ currentAnswer: await help.findAnswerByIntent(sheetAnswers, context.state.apiaiResp.result.metadata.intentName) }); // get question
+		await context.setState({ currentAnswer: await help.findAnswerByIntent(sheetAnswers, intentName) }); // get question
 		if (context.state.currentAnswer && context.state.currentAnswer.respostaTexto1) { // check if question exists and has the main answer (error)
 			await context.setState({ dialog: 'answerFound' });
 		} else { await context.setState({ dialog: 'answerNotFound' }); }

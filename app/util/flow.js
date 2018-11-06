@@ -5,6 +5,7 @@ module.exports.frasesFallback = ['Essa resposta eu não tenho 🤔. Muito boa a 
 	'Humm, essa resposta eu não sei. Irei procurar com nossa equipe e te respondemos.',
 	'Não encontrei sua resposta. Mas, irei encaminhar para nossa equipe, que irá te responder. 🤗'];
 
+module.exports.iaraAvatar = 'https://gallery.mailchimp.com/926cb477483bcd8122304bc56/images/31bc6941-cd82-4f19-81ca-32ad94ae917b.jpg';
 
 module.exports.eMailFirst = {
 	quick_replies: [
@@ -37,7 +38,7 @@ module.exports.eMailSecond = {
 		{
 			content_type: 'text',
 			title: 'Não quero a resposta',
-			payload: 'dontLeaveMail',
+			payload: 'dontWantAnswer',
 		},
 	],
 };
@@ -49,6 +50,33 @@ module.exports.askMail = {
 			content_type: 'text',
 			title: 'Sair',
 			payload: 'dontLeaveMail',
+		},
+	],
+};
+
+module.exports.share = {
+	quick_replies: [
+		{
+			content_type: 'text',
+			title: 'Compartilhar 🔗',
+			payload: 'share',
+		},
+	],
+};
+
+module.exports.helpText = {
+	first: 'Estou aqui para te ajudar! Basta você digitar sua dúvida abaixo e eu tentarei de responder. '
+		+ 'Ainda sou uma robô novinha e, por isso, posso não ter todas as respostas mas com cada dúvida nova eu também aprendo!',
+	second: 'O que eu não souber te responder a nossa equipe do Comunitas te responderá através do seu e-mail. '
+		+ 'Abaixo você poderá compartilhar e seguir nossa página! Se não conseguir ver nenhum botão fique tranquilo, você ainda poderá me consultar normalmente, só com texto.',
+};
+
+module.exports.help = {
+	quick_replies: [
+		{
+			content_type: 'text',
+			title: 'Compartilhar 🔗',
+			payload: 'share',
 		},
 	],
 };

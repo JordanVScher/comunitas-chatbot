@@ -85,5 +85,8 @@ secret-geolocation-api.json
 
 run-container.sh
 
+*.wav
+*.mp4
+*.flac
 private_key.json
 credentials.json

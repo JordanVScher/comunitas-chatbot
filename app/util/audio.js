@@ -79,19 +79,8 @@ async function voiceRequest(urlMessenger, sessionID) {
 
 							const detected = responses[0].queryResult;
 							if (detected && detected.queryText !== '') { // if there's no text we simlpy didn't get what the user said
-								// format parameters the same way dialogFlow does with text
-								const detectedParameters = {};
-								for (const element of Object.keys(detected.parameters.fields)) { // eslint-disable-line no-restricted-syntax
-									// removes empty parameters
-									if (detected.parameters.fields[element].listValue && detected.parameters.fields[element].listValue.values.length !== 0 && element !== 'Falso') {
-										// get multiple words that are attached to one single entity
-										detectedParameters[element] = detected.parameters.fields[element].listValue.values.map(obj => obj.stringValue);
-									}
-								}
 								// successful return
-								return {
-									intentName: detected.intent.displayName, whatWasSaid: `[Áudio] ${detected.queryText}`, parameters: detectedParameters,
-								};
+								return { intentName: detected.intent.displayName, whatWasSaid: `[Áudio] ${detected.queryText}` };
 							} // no text, user didn't say anything/no speech was detected
 							return { textMsg: 'Não consegui ouvir o que você disse. Por favor, tente novamente.' };
 						}).catch(async (err) => {

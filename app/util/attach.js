@@ -1,4 +1,4 @@
-
+const flow = require('./flow');
 
 module.exports.RelatedQuestionsQR = async (questions) => {
 	const elements = [];
@@ -14,6 +14,26 @@ module.exports.RelatedQuestionsQR = async (questions) => {
 	return { quick_replies: elements };
 };
 
+module.exports.sendShareButton = async (context) => {
+	await context.sendAttachment({
+		type: 'template',
+		payload: {
+			template_type: 'generic',
+			elements: [
+				{
+					title: '🌸 Chatbot Iara 🌸',
+					subtitle: 'A assistente digital do Comunitas',
+					image_url: flow.iaraAvatar,
+					item_url: 'https://www.facebook.com/Iara-dev-283110508965839/',
+					buttons: [{
+						type: 'element_share',
+					}],
+				},
+			],
+		},
+	});
+};
+
 module.exports.sendMainMenu = async (context) => {
-	await context.sendText('Esse é o menu principal. Mande mais dúvidas!');
+	await context.sendText('Tem mais alguma dúvida? Basta digitar e me mandar. Você também pode compartilhar ao mundo que eu existo, clicando abaixo ⬇️', flow.share);
 };
