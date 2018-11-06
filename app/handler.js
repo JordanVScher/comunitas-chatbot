@@ -40,7 +40,7 @@ module.exports = async (context) => {
 				await context.setState({ dialog: context.event.postback.payload });
 			} else if (context.event.isText) {
 				if (context.state.onAnswerNotFound === true) { // check if user wrote something on AnswerNotFound instead of clicking on any of the buttons (We still have to send the e-mail)
-					await mailer.sendSimpleError(context.session.user, context.state.whatWasTyped); // sending old text, before it's updated with the new user text
+					await mailer.sendSimpleError(context, context.state.whatWasTyped); // sending old text, before it's updated with the new user text
 					await context.setState({ onAnswerNotFound: false });
 				}
 				if (context.event.message.text === process.env.RELOAD_KEYWORD) { // admin types reload spreadsheet keyword
@@ -77,9 +77,13 @@ module.exports = async (context) => {
 				if (context.state.userMail && context.state.userMail.length > 0) {
 					await mailer.sendErrorMail(context, context.state.whatWasTyped, context.state.userMail);
 				} else {
-					await mailer.sendSimpleError(context.session.user, context.state.whatWasTyped);
+					await mailer.sendSimpleError(context, context.state.whatWasTyped);
 					await attach.sendMainMenu(context);
 				}
+				break;
+			case 'dontWantAnswer':
+				await mailer.sendSimpleError(context, context.state.whatWasTyped);
+				await attach.sendMainMenu(context);
 				break;
 			case 'reAskMail':
 				await context.sendText('Esse e-mail não parece estar correto! Tente um formato como "iara@gmail.com".', await flow.askMail);

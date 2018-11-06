@@ -38,7 +38,7 @@ module.exports.eMailSecond = {
 		{
 			content_type: 'text',
 			title: 'Não quero a resposta',
-			payload: 'dontLeaveMail',
+			payload: 'dontWantAnswer',
 		},
 	],
 };
