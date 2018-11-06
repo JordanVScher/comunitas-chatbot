@@ -1,4 +1,5 @@
 const nodemailer = require('nodemailer');
+const attach = require('./attach');
 
 const user = process.env.SENDER_EMAIL;
 const pass = process.env.SENDER_PASSWORD;
@@ -54,8 +55,8 @@ function sendSimpleError(userMail, userText = 'Não tenho a dúvida? Entre em co
 module.exports.sendSimpleError = sendSimpleError;
 
 
-function sendErrorMail(userData, userText, userMail) {
-	const userName = handleUserName(userData);
+function sendErrorMail(context, userText, userMail) {
+	const userName = handleUserName(context.session.user);
 	const mailOptions = {
 		from: user,
 		to: sendTo,
@@ -65,12 +66,14 @@ function sendErrorMail(userData, userText, userMail) {
 			+ `\nO email que o usuário deixou para respondê-lo: ${userMail}`,
 	};
 
-	transporter.sendMail(mailOptions, (error, info) => {
+
+	transporter.sendMail(mailOptions, async (error, info) => {
 		console.log(`User ${userName} mail status:`);
 		if (error) {
 			console.log(`Couldn't send e-mail: ${error}`);
 		} else if (info) {
 			console.log(`Email sent: ${info.response}`);
+			let msgStatus = 'Ok, recebemos sua dúvida. Logo mais estaremos te respondendo. 👍';
 			// send confirmation e-mail to user
 
 			if (userText && userText.length > 0) {
@@ -83,12 +86,15 @@ function sendErrorMail(userData, userText, userMail) {
 					+ `\n\nVocê enviou: ${userText}`
 					+ `\n\n\nNão é você? Houve algum engano? Acredita que não deveria ter recebido esse e-mail? Reporte-nos em ${sendTo}`,
 				};
-				transporter.sendMail(confirmation, (error2, info2) => {
+				transporter.sendMail(confirmation, async (error2, info2) => {
 					if (error) {
 						console.log(`Couldn't send user confirmation e-mail: ${error2}`);
 					} else if (info2) {
+						msgStatus = `Ok, recebemos sua dúvida. Você também recebeu um e-mail de confirmação em ${userMail}. Logo mais estaremos te respondendo. 👍`;
 						console.log(`Email sent: ${info2.response}`);
 					}
+					await context.sendText(msgStatus);
+					await attach.sendMainMenu(context);
 				});
 			}
 		}

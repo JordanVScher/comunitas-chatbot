@@ -39,6 +39,10 @@ module.exports = async (context) => {
 			} else if (context.event.isPostback) {
 				await context.setState({ dialog: context.event.postback.payload });
 			} else if (context.event.isText) {
+				if (context.state.onAnswerNotFound === true) { // check if user wrote something on AnswerNotFound instead of clicking on any of the buttons (We still have to send the e-mail)
+					await mailer.sendSimpleError(context.session.user, context.state.whatWasTyped); // sending old text, before it's updated with the new user text
+					await context.setState({ onAnswerNotFound: false });
+				}
 				if (context.event.message.text === process.env.RELOAD_KEYWORD) { // admin types reload spreadsheet keyword
 					await context.setState({ dialog: 'reload' });
 				} else if (context.state.dialog === 'leaveMail' || context.state.dialog === 'reAskMail') { // user leaves e-mail
@@ -59,11 +63,11 @@ module.exports = async (context) => {
 				+ '\n\nPor exemplo: Quero saber o que é o CAUC');
 				break;
 			case 'answerFound':
-				console.log(context.state.currentAnswer);
 				await answer.sendAnswerInSheet(context, context.state.currentAnswer);
 				await answer.sendRelatedQuestions(context, sheetAnswers, context.state.currentAnswer);
 				break;
 			case 'answerNotFound':
+				await context.setState({ onAnswerNotFound: true });
 				await answer.answerNotFound(context);
 				break;
 			case 'leaveMail':
@@ -71,16 +75,17 @@ module.exports = async (context) => {
 				break;
 			case 'dontLeaveMail':
 				if (context.state.userMail && context.state.userMail.length > 0) {
-					await mailer.sendErrorMail(context.session.user, context.state.whatWasTyped, context.state.userMail);
-				} else { await mailer.sendSimpleError(context.session.user, context.state.whatWasTyped); }
-				await attach.sendMainMenu(context);
+					await mailer.sendErrorMail(context, context.state.whatWasTyped, context.state.userMail);
+				} else {
+					await mailer.sendSimpleError(context.session.user, context.state.whatWasTyped);
+					await attach.sendMainMenu(context);
+				}
 				break;
 			case 'reAskMail':
 				await context.sendText('Esse e-mail não parece estar correto! Tente um formato como "iara@gmail.com".', await flow.askMail);
 				break;
 			case 'sendMail':
-				await mailer.sendErrorMail(context.session.user, context.state.whatWasTyped, context.state.userMail);
-				await attach.sendMainMenu(context);
+				await mailer.sendErrorMail(context, context.state.whatWasTyped, context.state.userMail);
 				break;
 			case 'share':
 				await context.sendText('Siga nossa página e compartilhe nossos esforços. 👍');
