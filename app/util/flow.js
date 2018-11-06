@@ -58,7 +58,7 @@ module.exports.share = {
 	quick_replies: [
 		{
 			content_type: 'text',
-			title: 'Compartilhar',
+			title: 'Compartilhar 🔗',
 			payload: 'share',
 		},
 	],
@@ -75,7 +75,7 @@ module.exports.help = {
 	quick_replies: [
 		{
 			content_type: 'text',
-			title: 'Compartilhar',
+			title: 'Compartilhar 🔗',
 			payload: 'share',
 		},
 	],
