@@ -18,6 +18,9 @@ module.exports.answerNotFound = async (context) => {
 module.exports.handleText = async (context, intentName, sheetAnswers) => {
 	console.log('intentName', intentName);
 	switch (intentName) { // check which intent
+	case 'restart':
+		await context.setState({ dialog: 'restart' });
+		break;
 	case 'help':
 		await context.setState({ dialog: 'help' });
 		break;
