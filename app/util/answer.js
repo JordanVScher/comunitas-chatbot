@@ -18,6 +18,9 @@ module.exports.answerNotFound = async (context) => {
 module.exports.handleText = async (context, intentName, sheetAnswers) => {
 	console.log('intentName', intentName);
 	switch (intentName) { // check which intent
+	case 'restart':
+		await context.setState({ dialog: 'restart' });
+		break;
 	case 'help':
 		await context.setState({ dialog: 'help' });
 		break;
@@ -26,7 +29,8 @@ module.exports.handleText = async (context, intentName, sheetAnswers) => {
 		break;
 	default: // all questions
 		await context.setState({ currentAnswer: await help.findAnswerByIntent(sheetAnswers, intentName) }); // get question
-		if (context.state.currentAnswer && context.state.currentAnswer.respostaTexto1) { // check if question exists and has the main answer (error)
+		if (context.state.currentAnswer && context.state.currentAnswer.respostaTexto1 // check if question exists and has the main answer on the correct length
+			&& context.state.currentAnswer.respostaTexto1.length > 0 && context.state.currentAnswer.respostaTexto1.length <= 1950) {
 			await context.setState({ dialog: 'answerFound' });
 		} else { await context.setState({ dialog: 'answerNotFound' }); }
 		break;
@@ -47,7 +51,7 @@ module.exports.handleQuestionButton = async (context, sheetAnswers) => {
 module.exports.sendAnswerInSheet = async (context, question) => {
 	try {
 		if (question.respostaTexto1) { await context.sendText(`${question.respostaTexto1}`); }
-		if (question.respostaTexto2) { await context.sendText(`${question.respostaTexto2}`); }
+		if (question.respostaTexto2 && question.respostaTexto2.length > 0 && question.respostaTexto2.length <= 1950) { await context.sendText(`${question.respostaTexto2}`); }
 		if (question.respostaImagem) { await context.sendImage(`${question.respostaImagem}`); }
 		if (question.respostaVideo) { await context.sendVideo(`${question.respostaVideo}`); }
 		if (question.respostaAudio) { await context.sendAudio(`${question.respostaAudio}`); }
@@ -75,7 +79,7 @@ module.exports.sendRelatedQuestions = async (context, sheetAnswers, question) =>
 				// 	await context.sendText('Que tal?', await attach.RelatedQuestionsQR(context.state.related));
 				} else { // more than one
 					await context.setState({ textToSend: 'Saiba mais!' });
-					if (question.textoPreliminar && question.textoPreliminar.length > 0) {
+					if (question.textoPreliminar && question.textoPreliminar.length > 0 && question.textoPreliminar.length <= 1950) {
 						await context.setState({ textToSend: question.textoPreliminar });
 					}
 					await context.sendText(context.state.textToSend, await attach.RelatedQuestionsQR(context.state.related));
