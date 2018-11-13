@@ -92,21 +92,23 @@ module.exports = async (context) => {
 				break;
 			case 'dontLeaveMail':
 				if (context.state.userMail && context.state.userMail.length > 0) {
-					await mailer.sendErrorMail(context, context.state.whatWasTyped, context.state.userMail);
+					// await mailer.sendErrorMail(context, context.state.whatWasTyped, context.state.userMail);
+					await dialogs.sendFullDoubt(context);
 				} else {
-					await mailer.sendSimpleError(context, context.state.whatWasTyped);
+					context.setState({ onAnswerNotFound: await mailer.sendSimpleError(context, context.state.whatWasTyped) });
 					await attach.sendMainMenu(context);
 				}
 				break;
 			case 'dontWantAnswer':
-				await mailer.sendSimpleError(context, context.state.whatWasTyped);
+				context.setState({ onAnswerNotFound: await mailer.sendSimpleError(context, context.state.whatWasTyped) });
 				await attach.sendMainMenu(context);
 				break;
 			case 'reAskMail':
 				await context.sendText('Esse e-mail não parece estar correto. Tente um formato como "iara@gmail.com".', await flow.askMail);
 				break;
 			case 'sendMail':
-				await mailer.sendErrorMail(context, context.state.whatWasTyped, context.state.userMail);
+				await dialogs.sendFullDoubt(context);
+				// await mailer.sendErrorMail(context, context.state.whatWasTyped, context.state.userMail);
 				break;
 			case 'share':
 				await context.sendText('Siga nossa página e compartilhe nossos esforços. 👍');
