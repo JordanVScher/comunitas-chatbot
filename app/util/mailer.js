@@ -46,7 +46,7 @@ async function sendSimpleError(context, userText) {
 		await Sentry.configureScope(async (scope) => {
 			scope.setUser({ username: context.session.user.first_name });
 			scope.setExtra('whatHappened', 'Single mail couldnt be sent');
-			scope.setExtra('state', context.state); throw result.error;
+			scope.setExtra('state', context.state); throw error;
 		});
 		return true;
 	}
