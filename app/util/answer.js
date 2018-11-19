@@ -23,6 +23,9 @@ module.exports.handleText = async (context, intentName, sheetAnswers) => {
 	case 'help':
 		await context.setState({ dialog: 'help' });
 		break;
+	case 'agradecimento':
+		await context.setState({ dialog: 'thanks' });
+		break;
 	case 'Fallback': // no answer found
 		await context.setState({ dialog: 'answerNotFound' });
 		break;
