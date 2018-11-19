@@ -120,6 +120,9 @@ module.exports = async (context) => {
 				await context.sendText(flow.helpText.first);
 				await context.sendText(flow.helpText.second, flow.help);
 				break;
+			case 'thanks':
+				await context.sendText(flow.helpText.first);
+				break;
 			case 'reload':
 				sheetAnswers = await help.reloadSpreadSheet();
 				await context.sendText('Recarregamos as respostas!');
