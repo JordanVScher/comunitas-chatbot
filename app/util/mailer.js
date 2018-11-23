@@ -29,6 +29,7 @@ function handleUserName(userData) {
 	return userName;
 }
 
+// sends only the user doubt, without user mail and without confirming to the user
 async function sendSimpleError(context, userText) {
 	const userName = handleUserName(context.session.user);
 
@@ -66,6 +67,7 @@ async function sendSimpleError(context, userText) {
 
 module.exports.sendSimpleError = sendSimpleError;
 
+// sends full error, including user mail and confirming to the user that we received the doubt (In this case, the user expects an answer)
 async function sendErrorMail(context, userText, userMail) {
 	const userName = handleUserName(context.session.user);
 
@@ -89,7 +91,7 @@ async function sendErrorMail(context, userText, userMail) {
 			scope.setExtra('whatHappened', 'First mail couldnt be sent');
 			scope.setExtra('state', context.state); throw error;
 		});
-		return { sent: true };
+		return { needToResend: true };
 	}
 
 	console.log(`First Email sent: ${result.response}`);
@@ -115,13 +117,13 @@ async function sendErrorMail(context, userText, userMail) {
 				scope.setExtra('whatHappened', 'Second mail couldnt be sent');
 				scope.setExtra('state', context.state); throw error;
 			});
-			return { sent: false, message: msgStatus };
+			return { needToResend: false, message: msgStatus };
 		}
 		msgStatus = `Ok, recebemos sua dúvida. Você também recebeu um e-mail de confirmação em ${userMail}. Logo mais estaremos te respondendo. 👍`;
 		console.log(`Second Email sent: ${result.response}`);
 
-		return { sent: false, message: msgStatus };
+		return { needToResend: false, message: msgStatus };
 	} // userText if
-	return { sent: false, message: msgStatus };
+	return { needToResend: false, message: msgStatus };
 }
 module.exports.sendErrorMail = sendErrorMail;
