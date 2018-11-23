@@ -3,6 +3,7 @@ const help = require('./util/help');
 const { Sentry } = require('./util/help');
 const answer = require('./util/answer');
 const attach = require('./util/attach');
+const events = require('./util/fb_events');
 const audio = require('./util/audio');
 const flow = require('./util/flow');
 const mailer = require('./util/mailer');
@@ -28,6 +29,7 @@ module.exports = async (context) => {
 				await context.setState({ payload: context.event.message.quick_reply.payload });
 				if (context.state.payload.slice(0, 8) === 'question') {
 					await answer.handleQuestionButton(context, sheetAnswers);
+					await events.addCustomAction(context.session.user.id, 'usuario clica em pergunta relacionada');
 				} else if (help.mailRegex.test(context.event.quickReply.payload)) {
 					await dialogs.handleMail(context, context.event.quickReply.payload);
 				} else {
@@ -71,6 +73,7 @@ module.exports = async (context) => {
 			// --end event handler
 			switch (context.state.dialog) {
 			case 'restart':
+				await events.addCustomAction(context.session.user.id, 'Usuario reinicia conversa');
 				// falls throught
 			case 'greetings':
 				await context.sendImage(flow.iaraAvatar);
@@ -82,46 +85,52 @@ module.exports = async (context) => {
 			case 'answerFound':
 				await answer.sendAnswerInSheet(context, context.state.currentAnswer);
 				await answer.sendRelatedQuestions(context, sheetAnswers, context.state.currentAnswer);
+				await events.addCustomAction(context.session.user.id, 'Resposta encontrada');
 				break;
 			case 'answerNotFound':
 				await context.setState({ onAnswerNotFound: true });
 				await answer.answerNotFound(context);
+				await events.addCustomAction(context.session.user.id, 'Resposta nao encontrada');
 				break;
 			case 'leaveMail':
 				await context.sendText('Qual o seu e-mail? Pode digitá-lo e nos mandar.', await flow.askMail);
+				await events.addCustomAction(context.session.user.id, 'Usuario quer deixar e-mail');
 				break;
-			case 'dontLeaveMail':
-				if (context.state.userMail && context.state.userMail.length > 0) {
-					// await mailer.sendErrorMail(context, context.state.whatWasTyped, context.state.userMail);
+			case 'dontLeaveMail': // user doesn't want to leave mail
+				if (context.state.userMail && context.state.userMail.length > 0) { // check if user left his e-mail already and simply didn't want to update his e-mail
 					await dialogs.sendFullDoubt(context);
-				} else {
+				} else { // user doesn't want to leave e-mail
 					context.setState({ onAnswerNotFound: await mailer.sendSimpleError(context, context.state.whatWasTyped) });
 					await attach.sendMainMenu(context);
+					await events.addCustomAction(context.session.user.id, 'Usuario nao quer deixar e-mail');
 				}
 				break;
 			case 'dontWantAnswer':
 				context.setState({ onAnswerNotFound: await mailer.sendSimpleError(context, context.state.whatWasTyped) });
 				await attach.sendMainMenu(context);
+				await events.addCustomAction(context.session.user.id, 'Usuario nao quer resposta');
 				break;
 			case 'reAskMail':
 				await context.sendText('Esse e-mail não parece estar correto. Tente um formato como "iara@gmail.com".', await flow.askMail);
 				break;
 			case 'sendMail':
 				await dialogs.sendFullDoubt(context);
-				// await mailer.sendErrorMail(context, context.state.whatWasTyped, context.state.userMail);
 				break;
 			case 'share':
 				await context.sendText('Siga nossa página e compartilhe nossos esforços. 👍');
 				await attach.sendShareButton(context);
 				await context.sendText('Mais dúvidas? É só me mandar!');
+				await events.addCustomAction(context.session.user.id, 'Usuario quer compartilhar');
 				break;
 			case 'help':
 				await context.setState({ whatWasTyped: '' });
 				await context.sendText(flow.helpText.first);
 				await context.sendText(flow.helpText.second, flow.help);
+				await events.addCustomAction(context.session.user.id, 'Usuario pede ajuda');
 				break;
 			case 'thanks':
 				await context.sendText(flow.helpText.first);
+				await events.addCustomAction(context.session.user.id, 'Usuario agradece');
 				break;
 			case 'reload':
 				sheetAnswers = await help.reloadSpreadSheet();

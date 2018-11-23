@@ -31,17 +31,17 @@ module.exports.reloadSpreadSheet = async () => {
 module.exports.mailRegex = new RegExp(/\S+@\S+/);
 
 // # helpful functions
-// get the answer using the intent
+// get the answer from the spreadsheet json using the intent
 module.exports.findAnswerByIntent = async (array, keyword) => {
 	const answer = array.find(x => (x.nomeIntent ? x.nomeIntent.trim() : 'error') === keyword); return answer;
 };
 
-// get the answer using the id
+// get the answer from the spreadsheet json using the id
 module.exports.findAnswerByID = async (array, id) => {
 	const answer = array.find(x => x.idDaPergunta.toString() === id); return answer;
 };
 
-// get the answer using question ID
+// get the answer from the spreadsheet json using question ID
 module.exports.findAllAnswersById = async (answers, ids) => {
 	const results = [];
 	ids.forEach(async (element) => {
