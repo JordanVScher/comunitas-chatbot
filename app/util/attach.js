@@ -1,5 +1,7 @@
 const flow = require('./flow');
 
+const shareLink = process.env.SHARE_LINK;
+
 module.exports.RelatedQuestionsQR = async (questions) => {
 	const elements = [];
 	questions.forEach(async (element) => {
@@ -24,7 +26,7 @@ module.exports.sendShareButton = async (context) => {
 					title: '🌸 Chatbot Iara 🌸',
 					subtitle: 'A assistente digital do Comunitas',
 					image_url: flow.iaraAvatar,
-					item_url: 'https://www.facebook.com/Iara-dev-283110508965839/',
+					item_url: shareLink,
 					buttons: [{
 						type: 'element_share',
 					}],

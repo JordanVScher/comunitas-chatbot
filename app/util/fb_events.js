@@ -1,6 +1,10 @@
 const request = require('request');
 
 async function addCustomAction(recipientId, eventName) {
+	// for creating custom events on Facebook Analytics
+	// recipientId -> the id of the user
+	// eventName -> name of the custom event
+	// eventName must match regex pattern: \/^[0-9a-zA-Z_][0-9a-zA-Z _-]{0,39}$\/ -> no 'ç', no accents
 	request.post({
 		url: `https://graph.facebook.com/${process.env.APP_ID}/activities`,
 		form: {
