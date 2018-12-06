@@ -81,10 +81,16 @@ module.exports.sendRelatedQuestions = async (context, sheetAnswers, question) =>
 				// 	await context.sendText('Que tal?', await attach.RelatedQuestionsQR(context.state.related));
 				} else { // more than one
 					await context.setState({ textToSend: 'Saiba mais!' });
-					if (question.textoPreliminar && question.textoPreliminar.length > 0 && question.textoPreliminar.length <= 1950) {
+					if (question.textoPreliminar && question.textoPreliminar.length > 0 && question.textoPreliminar.length <= 1950) { // checking if we can send the related text
 						await context.setState({ textToSend: question.textoPreliminar });
 					}
-					await context.sendText(context.state.textToSend, await attach.RelatedQuestionsQR(context.state.related));
+					await context.setState({ relatedQR: await attach.RelatedQuestionsQR(context.state.related) }); // loading related questions
+
+					if (context.state.relatedQR && context.state.relatedQR.length > 0) { // if we managed to get the relatedQR properly we can send it
+						await context.sendText(context.state.textToSend, { quick_replies: context.state.relatedQR });
+					} else { // no proper related questions, back to mainMenu
+						await attach.sendMainMenu(context);
+					}
 				}
 			}
 		} catch (error) {

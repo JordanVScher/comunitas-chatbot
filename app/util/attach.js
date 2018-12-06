@@ -2,18 +2,20 @@ const flow = require('./flow');
 
 const shareLink = process.env.SHARE_LINK;
 
-module.exports.RelatedQuestionsQR = async (questions) => {
+module.exports.RelatedQuestionsQR = async (questions) => { // format options to quick_reply ormat
 	const elements = [];
 	questions.forEach(async (element) => {
-		let title = element.perguntaBotao;
-		if (title && title.length > 20) { title = title.slice(0, 20); }
-		elements.push({
-			content_type: 'text',
-			title,
-			payload: `question${element.idDaPergunta}`,
-		});
+		if (element.perguntaBotao) { // checks if collum perguntaBotao was filled
+			let title = element.perguntaBotao;
+			if (title && title.length > 20) { title = `${title.slice(0, 17)}...`; } // slicing and adding ... in case the botao title is too long
+			elements.push({
+				content_type: 'text',
+				title,
+				payload: `question${element.idDaPergunta}`,
+			});
+		}
 	});
-	return { quick_replies: elements };
+	return elements;
 };
 
 module.exports.sendShareButton = async (context) => {
