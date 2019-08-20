@@ -18,25 +18,37 @@ module.exports.RelatedQuestionsQR = async (questions) => { // format options to 
 	return elements;
 };
 
-module.exports.sendShareButton = async (context) => {
+module.exports.sendShareButton = async (context, cardData) => {
+	const buttons = [
+		{
+			type: 'web_url',
+			title: 'Ver Chatbot',
+			url: `m.me/${process.env.PAGE_ID}`,
+		},
+	];
+
 	await context.sendAttachment({
 		type: 'template',
 		payload: {
 			template_type: 'generic',
 			elements: [
 				{
-					title: '🌸 Chatbot Iara 🌸',
-					subtitle: 'A assistente digital do Comunitas',
+					title: cardData.title,
+					subtitle: (cardData.text && cardData.text !== '') ? cardData.text : cardData.sub,
 					image_url: flow.iaraAvatar,
-					item_url: shareLink,
-					buttons: [{
-						type: 'element_share',
-					}],
+					default_action: {
+						type: 'web_url',
+						url: `www.facebook.com/${process.env.PAGE_ID}`,
+						messenger_extensions: 'false',
+						webview_height_ratio: 'full',
+					},
+					buttons,
 				},
 			],
 		},
 	});
 };
+
 
 module.exports.sendMainMenu = async (context) => {
 	await context.sendText('Tem mais alguma dúvida? Basta digitar e me mandar. Você também pode compartilhar ao mundo que eu existo, clicando abaixo ⬇️', flow.share);

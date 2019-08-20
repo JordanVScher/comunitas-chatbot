@@ -2,19 +2,24 @@ const nodemailer = require('nodemailer');
 const { Sentry } = require('./help');
 const attach = require('./attach');
 
-const user = process.env.SENDER_EMAIL;
-const pass = process.env.SENDER_PASSWORD;
-const sendTo = process.env.EMAIL_TO_RECEIVE;
-const service = process.env.SERVICE;
+const user = process.env.MAIL_USER;
+const pass = process.env.MAIL_PASS;
+const host = process.env.MAIL_HOST;
+const port = process.env.MAIL_PORT;
+const service = process.env.MAIL_SERVICE;
+const from = process.env.MAIL_FROM;
 
+const sendTo = process.env.MAIL_SEND_TO.split(',');
+// const sendTo = process.env.MAIL_SEND_TO;
 
 const transporter = nodemailer.createTransport({
 	service,
-	// host: process.env.SMTP_SERVER,
-	// port: process.env.SMTP_PORT,
+	host,
+	port,
 	auth: {
 		user,
 		pass,
+		secure: true, // use SSL
 	},
 	tls: { rejectUnauthorized: false },
 	debug: true,
@@ -34,7 +39,7 @@ async function sendSimpleError(context, userText) {
 	const userName = handleUserName(context.session.user);
 
 	const mailOptions = {
-		from: user,
+		from,
 		to: sendTo,
 		subject: `Iara: dúvida de ${userName}`,
 		text: `Não entendemos essa dúvida de ${userName}: \n\n${userText}\n\nEsse usuário não quis deixar o e-mail conosco.`,
@@ -61,7 +66,7 @@ async function sendSimpleError(context, userText) {
 		return true;
 	}
 
-	console.log(`Single email sent: ${result.response}`);
+	console.log(`Single email sent to ${sendTo}: ${result.response}`);
 	return false;
 }
 
@@ -94,7 +99,7 @@ async function sendErrorMail(context, userText, userMail) {
 		return { needToResend: true };
 	}
 
-	console.log(`First Email sent: ${result.response}`);
+	console.log(`First Email sent to ${sendTo}: ${result.response}`);
 	let msgStatus = 'Ok, recebemos sua dúvida. Logo mais estaremos te respondendo. 👍';
 
 	if (userText && userText.length > 0) {
@@ -120,7 +125,7 @@ async function sendErrorMail(context, userText, userMail) {
 			return { needToResend: false, message: msgStatus };
 		}
 		msgStatus = `Ok, recebemos sua dúvida. Você também recebeu um e-mail de confirmação em ${userMail}. Logo mais estaremos te respondendo. 👍`;
-		console.log(`Second Email sent: ${result.response}`);
+		console.log(`Second Email sent to ${userMail}: ${result.response}`);
 
 		return { needToResend: false, message: msgStatus };
 	} // userText if
