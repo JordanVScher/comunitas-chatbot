@@ -18,9 +18,9 @@ async function addCustomAction(recipientId, eventName) {
 			page_id: process.env.PAGE_ID,
 			page_scoped_user_id: recipientId,
 		},
-	}, (err, httpResponse, body) => {
-		console.log(`eventName: '${eventName}'\nstatusCode: ${httpResponse.statusCode}\nbody: ${body}`);
-		console.error('err:', err);
+	}, (err, httpResponse, body) => { // eslint-disable-line
+		// console.log(`eventName: '${eventName}'\nstatusCode: ${httpResponse.statusCode}\nbody: ${body}`);
+		if (err) console.error('err:', err);
 	});
 }
 

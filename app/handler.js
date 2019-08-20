@@ -8,7 +8,6 @@ const audio = require('./util/audio');
 const flow = require('./util/flow');
 const mailer = require('./util/mailer');
 const dialogs = require('./util/dialogs');
-// const maApi = require('./util/MA_api');
 
 let sheetAnswers = '';
 async function initialLoading() {
@@ -19,8 +18,6 @@ async function initialLoading() {
 	} else { console.log("Couldn't load Spreadsheet!");	}
 }
 initialLoading();
-
-// const { pageID } = process.env;
 
 module.exports = async (context) => {
 	try {
@@ -117,8 +114,8 @@ module.exports = async (context) => {
 				await dialogs.sendFullDoubt(context);
 				break;
 			case 'share':
-				await context.sendText('Siga nossa página e compartilhe nossos esforços. 👍');
-				await attach.sendShareButton(context);
+				await context.sendText('Siga nossa página e compartilhe nossos esforços. Basta encaminhar a mensagem abaixo. 👍');
+				await attach.sendShareButton(context, flow.cardData);
 				await context.sendText('Mais dúvidas? É só me mandar!');
 				await events.addCustomAction(context.session.user.id, 'Usuario quer compartilhar');
 				break;
