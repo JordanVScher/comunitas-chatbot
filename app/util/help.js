@@ -11,7 +11,7 @@ const chatbaseAgent = require('@google/chatbase')
 	.setPlatform('Messenger')
 	.setAsTypeUser();
 
-async function sendMessage(agent, userID, message, intent) {
+async function sendMessage(agent, userID, intent) {
 	let chatbase;
 
 	if (agent) {
@@ -21,10 +21,11 @@ async function sendMessage(agent, userID, message, intent) {
 	}
 
 	chatbase.newMessage()
-		.setMessage(message)
 		.setVersion('1.0')
 		.setUserId(userID)
-		.setIntent(intent)
+		.setMessage(intent)
+		.setAsHandled()
+		// .setIntent(intent)
 		.send()
 		.then(msg => console.log(msg.getCreateResponse()))
 		.catch(err => console.error(err));
