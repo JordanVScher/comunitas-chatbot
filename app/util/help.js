@@ -1,6 +1,36 @@
 const dialogFlow = require('apiai-promise');
 const gsjson = require('google-spreadsheet-to-json');
 const accents = require('remove-accents');
+const chatbaseUser = require('@google/chatbase')
+	.setApiKey(process.env.MY_CHATBASE_KEY)
+	.setPlatform('Messenger')
+	.setAsTypeUser();
+
+const chatbaseAgent = require('@google/chatbase')
+	.setApiKey(process.env.MY_CHATBASE_KEY)
+	.setPlatform('Messenger')
+	.setAsTypeUser();
+
+async function sendMessage(agent, userID, message, intent) {
+	let chatbase;
+
+	if (agent) {
+		chatbase = chatbaseAgent;
+	} else {
+		chatbase = chatbaseUser;
+	}
+
+	chatbase.newMessage()
+		.setMessage(message)
+		.setVersion('1.0')
+		.setUserId(userID)
+		.setIntent(intent)
+		.send()
+		.then(msg => console.log(msg.getCreateResponse()))
+		.catch(err => console.error(err));
+}
+
+module.exports.sendMessage = sendMessage;
 
 // # Sentry
 const Sentry = require('@sentry/node');
