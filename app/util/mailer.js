@@ -77,10 +77,10 @@ async function sendErrorMail(context, userText, userMail) {
 	const userName = handleUserName(context.session.user);
 
 	const mailOptions = {
-		from: user,
+		from,
 		to: sendTo,
 		subject: `Iara: dúvida de ${userName}`,
-		text: `Recebemos uma nova dúvida de ${userName}. `
+		text: `Recebemos uma nova dúvida de ${userName}.`
 			+ `\nA dúvida: ${userText}`
 			+ `\nO email que o usuário deixou para respondê-lo: ${userMail}`,
 	};
@@ -110,7 +110,7 @@ async function sendErrorMail(context, userText, userMail) {
 			text: 'Olá.\nRecebemos a dúvida que você nos enviou em nossa página do Facebook. '
 				+ 'Iremos responder o mais breve possível.'
 				+ `\n\nVocê enviou: ${userText}`
-				+ `\n\n\nNão é você? Houve algum engano? Acredita que não deveria ter recebido esse e-mail? Avise-nos em ${sendTo}`,
+				+ `\n\n\nNão é você? Houve algum engano? Acredita que não deveria ter recebido esse e-mail? Avise-nos em ${sendTo[0]}`,
 		};
 
 		try {

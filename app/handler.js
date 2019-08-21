@@ -61,6 +61,7 @@ module.exports = async (context) => {
 				} else if (context.state.dialog === 'leaveMail' || context.state.dialog === 'reAskMail') { // user leaves e-mail
 					await dialogs.handleMail(context, context.event.message.text);
 				} else {
+					// await help.sendMessage(false, context.session.user.id, context.event.message.text, 'Texto Livre');
 					await dialogs.handleActionOnAnswerNotFound(context);
 					await context.setState({ whatWasTyped: context.event.message.text }); // storing the text
 					await context.setState({ apiaiResp: await apiai.textRequest(await help.formatString(context.state.whatWasTyped), { sessionId: context.session.user.id }) });
