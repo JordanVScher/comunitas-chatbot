@@ -2,7 +2,7 @@ const request = require('request');
 const { sendMessage } = require('./help');
 
 async function addCustomAction(recipientId, eventName) {
-	// await sendMessage(false, recipientId, eventName);
+	await sendMessage(recipientId, eventName);
 	// for creating custom events on Facebook Analytics
 	// recipientId -> the id of the user
 	// eventName -> name of the custom event

@@ -1,6 +1,7 @@
 const help = require('./help');
 const attach = require('./attach');
 const { Sentry } = require('./help');
+const { sendIntent } = require('./help');
 const flow = require('./flow');
 
 module.exports.answerNotFound = async (context) => {
@@ -16,6 +17,8 @@ module.exports.answerNotFound = async (context) => {
 };
 
 module.exports.handleText = async (context, intentName, sheetAnswers) => {
+	await sendIntent(context.session.user.id, intentName, context.state.whatWasTyped);
+
 	switch (intentName) { // check which intent
 	case 'restart':
 		await context.setState({ dialog: 'restart' });
