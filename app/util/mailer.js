@@ -81,8 +81,8 @@ async function sendErrorMail(context, userText, userMail) {
 		to: sendTo,
 		subject: `Iara: dúvida de ${userName}`,
 		text: `Recebemos uma nova dúvida de ${userName}.`
-			+ `\nA dúvida: ${userText}`
-			+ `\nO email que o usuário deixou para respondê-lo: ${userMail}`,
+			+ `\n\nA dúvida: ${userText}`
+			+ `\n\n\nO email que o usuário deixou para respondê-lo: ${userMail}`,
 	};
 
 	let result;
