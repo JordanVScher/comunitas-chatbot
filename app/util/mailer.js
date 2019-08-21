@@ -104,7 +104,7 @@ async function sendErrorMail(context, userText, userMail) {
 
 	if (userText && userText.length > 0) {
 		const confirmation = {
-			from: user,
+			from,
 			to: userMail,
 			subject: 'Iara, o chatbot do Comunitas: Recebemos sua dúvida!',
 			text: 'Olá.\nRecebemos a dúvida que você nos enviou em nossa página do Facebook. '
