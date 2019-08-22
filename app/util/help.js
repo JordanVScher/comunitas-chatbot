@@ -19,9 +19,6 @@ async function sendMessage(userID, message) {
 }
 
 async function sendIntent(userID, intent, message) {
-	console.log('xcjkllkfjsdlkf');
-
-
 	chatbaseUser.newMessage()
 		.setVersion('1.0')
 		.setUserId(userID)
