@@ -48,6 +48,7 @@ module.exports.handleQuestionButton = async (context, sheetAnswers) => {
 	await context.setState({ questionID: context.state.payload.replace('question', '') });
 	await context.setState({ currentAnswer: await help.findAnswerByID(sheetAnswers, context.state.questionID) }); // get question
 	if (context.state.currentAnswer && context.state.currentAnswer.respostaTexto1) { // check if question exists and has the main answer (error)
+		await sendIntent(context.session.user.id, context.state.currentAnswer.nomeIntent, 'Botao Relacionado');
 		await context.setState({ dialog: 'answerFound' }); return true;
 	} await context.setState({ dialog: 'answerNotFound' }); return false;
 };
