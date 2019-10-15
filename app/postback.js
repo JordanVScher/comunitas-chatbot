@@ -10,7 +10,7 @@ const client = MessengerClient.connect({
 
 
 async function createGetStarted() { // eslint-disable-line no-unused-vars
-	console.log(await client.setGetStarted('restart')); // don't forget to subscribe page to app for this to work
+	console.log(await client.setGetStarted('greetings')); // don't forget to subscribe page to app for this to work
 	console.log(await client.setGreeting([{
 		locale: 'default',
 		text: 'Olá, eu sou a Iara, a assistente digital do Comunitas 🌸. Posso tirar suas dúvidas em relação ao CAUC. Me faça um pergunta!',
