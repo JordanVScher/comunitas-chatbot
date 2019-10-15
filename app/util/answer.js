@@ -1,6 +1,7 @@
 const help = require('./help');
 const attach = require('./attach');
 const { Sentry } = require('./help');
+const { sendIntent } = require('./help');
 const flow = require('./flow');
 
 module.exports.answerNotFound = async (context) => {
@@ -16,6 +17,8 @@ module.exports.answerNotFound = async (context) => {
 };
 
 module.exports.handleText = async (context, intentName, sheetAnswers) => {
+	await sendIntent(context.session.user.id, intentName, context.state.whatWasTyped);
+
 	switch (intentName) { // check which intent
 	case 'restart':
 		await context.setState({ dialog: 'restart' });
@@ -45,6 +48,7 @@ module.exports.handleQuestionButton = async (context, sheetAnswers) => {
 	await context.setState({ questionID: context.state.payload.replace('question', '') });
 	await context.setState({ currentAnswer: await help.findAnswerByID(sheetAnswers, context.state.questionID) }); // get question
 	if (context.state.currentAnswer && context.state.currentAnswer.respostaTexto1) { // check if question exists and has the main answer (error)
+		await sendIntent(context.session.user.id, context.state.currentAnswer.nomeIntent, 'Botao Relacionado');
 		await context.setState({ dialog: 'answerFound' }); return true;
 	} await context.setState({ dialog: 'answerNotFound' }); return false;
 };

@@ -6,24 +6,24 @@ const chatbaseUser = require('@google/chatbase')
 	.setPlatform('Messenger')
 	.setAsTypeUser();
 
-const chatbaseAgent = require('@google/chatbase')
-	.setApiKey(process.env.MY_CHATBASE_KEY)
-	.setPlatform('Messenger')
-	.setAsTypeUser();
-
-async function sendMessage(agent, userID, message, intent) {
-	let chatbase;
-
-	if (agent) {
-		chatbase = chatbaseAgent;
-	} else {
-		chatbase = chatbaseUser;
-	}
-
-	chatbase.newMessage()
-		.setMessage(message)
+async function sendMessage(userID, message) {
+	chatbaseUser.newMessage()
 		.setVersion('1.0')
 		.setUserId(userID)
+		.setMessage(message)
+		.setAsHandled()
+		.setIntent()
+		.send()
+		.then(msg => console.log(msg.getCreateResponse()))
+		.catch(err => console.error(err));
+}
+
+async function sendIntent(userID, intent, message) {
+	chatbaseUser.newMessage()
+		.setVersion('1.0')
+		.setUserId(userID)
+		.setMessage(message)
+		.setAsHandled()
 		.setIntent(intent)
 		.send()
 		.then(msg => console.log(msg.getCreateResponse()))
@@ -31,6 +31,7 @@ async function sendMessage(agent, userID, message, intent) {
 }
 
 module.exports.sendMessage = sendMessage;
+module.exports.sendIntent = sendIntent;
 
 // # Sentry
 const Sentry = require('@sentry/node');

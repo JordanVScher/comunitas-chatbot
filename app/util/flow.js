@@ -66,6 +66,10 @@ module.exports = {
 			},
 		],
 	},
+	notifications: {
+		on: 'Vou te chamando conforme vou sabendo de mais bafos!',
+		off: 'Sem problemas, beibe. Não te enviarei mais nenhuma notificação.',
+	},
 	helpText: {
 		first: 'Estou aqui para te ajudar! Basta você digitar sua dúvida abaixo e eu tentarei de responder. '
 		+ 'Ainda sou uma robô novinha e, por isso, posso não ter todas as respostas mas com cada dúvida nova eu também aprendo!',
