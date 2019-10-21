@@ -90,3 +90,4 @@ run-container.sh
 *.flac
 private_key.json
 credentials.json
+google_private_key.json

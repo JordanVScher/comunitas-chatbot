@@ -1,10 +1,9 @@
-const { apiai } = require('./util/help');
 const help = require('./util/help');
+const DF = require('./util/dialogflow');
 const { Sentry } = require('./util/help');
 const answer = require('./util/answer');
 const attach = require('./util/attach');
 const events = require('./util/fb_events');
-const audio = require('./util/audio');
 const flow = require('./util/flow');
 const mailer = require('./util/mailer');
 const dialogs = require('./util/dialogs');
@@ -36,22 +35,6 @@ module.exports = async (context) => {
 				|| context.event.isImage || context.event.isFallback || context.event.isLocation) {
 				await dialogs.handleActionOnAnswerNotFound(context);
 				await context.sendText('Não entendi sua última mensagem. Por favor, mensagens de texto para as suas dúvidas ou clique nos botões.');
-			} else if (context.event.isAudio) {
-				await context.setState({ dialog: '' });
-				await dialogs.handleActionOnAnswerNotFound(context);
-				await context.sendText('Áudio? Me dê um momento para processar.');
-				if (context.event.audio.url) {
-					await context.setState({ audio: await audio.voiceRequest(context.event.audio.url, context.session.user.id) });
-					if (context.state.audio && context.state.audio.txtMag && context.state.audio.txtMag !== '') { // there was an error (or the user just didn't say anything)
-						await context.sendText(context.state.audio.txtMag);
-					} else if (!context.state.audio || !context.state.audio.intentName) {
-						await context.sendText('Não entendi o que você disse. Tente me perguntar novamente ou digitar a sua dúvida.');
-					} else {
-						await context.setState({ whatWasTyped: context.state.audio.whatWasSaid });
-						await context.setState({ intentName: context.state.audio.intentName });
-						await answer.handleText(context, context.state.intentName, sheetAnswers);
-					}
-				}
 			} else if (context.event.isPostback) {
 				await dialogs.handleActionOnAnswerNotFound(context);
 				await context.setState({ dialog: context.event.postback.payload });
@@ -63,8 +46,11 @@ module.exports = async (context) => {
 				} else {
 					await dialogs.handleActionOnAnswerNotFound(context);
 					await context.setState({ whatWasTyped: context.event.message.text }); // storing the text
-					await context.setState({ apiaiResp: await apiai.textRequest(await help.formatString(context.state.whatWasTyped), { sessionId: context.session.user.id }) });
-					await answer.handleText(context, context.state.apiaiResp.result.metadata.intentName, sheetAnswers);
+					await context.setState({ apiaiResp: await DF.textRequestDF(await help.formatString(context.state.whatWasTyped), context.session.user.id) });
+					await context.setState({ intentName: context.state.apiaiResp[0].queryResult.intent.displayName || '' }); // intent name
+					await context.setState({ resultParameters: await DF.getEntity(context.state.apiaiResp) }); // entities
+					await context.setState({ apiaiTextAnswer: context.state.apiaiResp[0].queryResult.fulfillmentText || '' }); // response text
+					await answer.handleText(context, context.state.intentName, sheetAnswers);
 				} // --end else
 			} // --end isText
 			// --end event handler

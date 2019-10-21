@@ -1,4 +1,3 @@
-const dialogFlow = require('apiai-promise');
 const gsjson = require('google-spreadsheet-to-json');
 const accents = require('remove-accents');
 const chatbaseUser = require('@google/chatbase')
@@ -38,9 +37,6 @@ const Sentry = require('@sentry/node');
 
 Sentry.init({ dsn: process.env.SENTRY_DSN, environment: process.env.ENV });
 module.exports.Sentry = Sentry;
-
-// # Dialogflow
-module.exports.apiai = dialogFlow(process.env.DIALOGFLOW_TOKEN);
 
 // # Google Spreadsheet
 const privateKey = require('../private_key.json');
