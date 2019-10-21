@@ -39,7 +39,7 @@ Sentry.init({ dsn: process.env.SENTRY_DSN, environment: process.env.ENV });
 module.exports.Sentry = Sentry;
 
 // # Google Spreadsheet
-const privateKey = require('../google_private_key.json');
+const privateKey = require('../../google_private_key.json');
 
 module.exports.reloadSpreadSheet = async () => {
 	const results = await gsjson({
