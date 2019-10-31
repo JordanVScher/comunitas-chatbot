@@ -19,7 +19,7 @@
     "google-spreadsheet-to-json": "^1.0.0",
     "messaging-api-messenger": "^0.7.8",
     "nodemailer": "^4.6.8",
-    "query-string": "^6.2.0",
+    "query-string": "^6.8.3",
     "raven": "^2.6.4",
     "remove-accents": "^0.4.2",
     "request": "^2.88.0",
