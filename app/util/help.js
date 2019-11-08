@@ -13,8 +13,8 @@ async function sendMessage(userID, message) {
 		.setAsHandled()
 		.setIntent()
 		.send()
-		.then(msg => console.log(msg.getCreateResponse()))
-		.catch(err => console.error(err));
+		.then((msg) => console.log(msg.getCreateResponse()))
+		.catch((err) => console.error(err));
 }
 
 async function sendIntent(userID, intent, message) {
@@ -25,8 +25,8 @@ async function sendIntent(userID, intent, message) {
 		.setAsHandled()
 		.setIntent(intent)
 		.send()
-		.then(msg => console.log(msg.getCreateResponse()))
-		.catch(err => console.error(err));
+		.then((msg) => console.log(msg.getCreateResponse()))
+		.catch((err) => console.error(err));
 }
 
 module.exports.sendMessage = sendMessage;
@@ -46,7 +46,7 @@ module.exports.reloadSpreadSheet = async () => {
 		spreadsheetId: process.env.SPREADKEY,
 		credentials: privateKey,
 		// hash: 'id',
-	}).then(result => result).catch((err) => {
+	}).then((result) => result).catch((err) => {
 		console.log(err.message);
 		console.log(err.stack);
 		return undefined;
@@ -60,25 +60,25 @@ module.exports.mailRegex = new RegExp(/\S+@\S+/);
 // # helpful functions
 // get the answer from the spreadsheet json using the intent
 module.exports.findAnswerByIntent = async (array, keyword) => {
-	const answer = array.find(x => (x.nomeIntent ? x.nomeIntent.trim() : 'error') === keyword); return answer;
+	const answer = array.find((x) => (x.nomeIntent ? x.nomeIntent.trim() : 'error') === keyword); return answer;
 };
 
 // get the answer from the spreadsheet json using the id
 module.exports.findAnswerByID = async (array, id) => {
-	const answer = array.find(x => x.idDaPergunta.toString() === id); return answer;
+	const answer = array.find((x) => x.idDaPergunta.toString() === id); return answer;
 };
 
 // get the answer from the spreadsheet json using question ID
 module.exports.findAllAnswersById = async (answers, ids) => {
 	const results = [];
 	ids.forEach(async (element) => {
-		const found = answers.find(x => x.idDaPergunta === element);
+		const found = answers.find((x) => x.idDaPergunta === element);
 		if (found) { results.push({ perguntaBotao: found.perguntaBotao, idDaPergunta: found.idDaPergunta }); }
 	});
 	return results;
 };
 
-module.exports.getRandomFrasesFallback = myArray => myArray[Math.floor(Math.random() * myArray.length)];
+module.exports.getRandomFrasesFallback = (myArray) => myArray[Math.floor(Math.random() * myArray.length)];
 
 async function formatString(text) {
 	let result = text.toLowerCase();

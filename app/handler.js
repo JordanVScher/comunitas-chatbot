@@ -60,10 +60,8 @@ module.exports = async (context) => {
 				// falls throught
 			case 'greetings':
 				await context.sendImage(flow.iaraAvatar);
-				await context.sendText(`Olá, ${context.session.user.first_name}. Espero que esteja bem! `
-				+ 'Sou Iara, a assistente digital da Comunitas e estou aqui para te orientar de forma correta e eficiente sobre o CAUC.');
-				await context.sendText('Como posso te ajudar? Basta digitar de forma breve qual sua dúvida sobre o CAUC. '
-				+ '\n\nPor exemplo: Quero saber o que é o CAUC');
+				await context.sendText(flow.intro.txt1);
+				await context.sendText(flow.intro.txt2);
 				break;
 			case 'answerFound':
 				await answer.sendAnswerInSheet(context, context.state.currentAnswer);
