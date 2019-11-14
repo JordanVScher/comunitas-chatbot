@@ -4,7 +4,12 @@
   "private": true,
   "scripts": {
     "dev": "nodemon app/index.js",
-    "start": "node app/index.js"
+    "start": "node app/index.js",
+    "pm2_add": "pm2 start app/index.js  --name \"iara-comunitas-homol\"",
+    "restart": "pm2 restart \"iara-comunitas-homol\" --update-env",
+    "logs": "pm2 logs \"iara-comunitas-homol\" --lines 1000",
+    "reload": "docker rm -f comunitas-chatbot; bash build-container.sh; bash run-container.sh",
+    "d_logs": "docker logs -f --tail 1000 comunitas-chatbot"
   },
   "dependencies": {
     "@google/chatbase": "^1.1.2",
