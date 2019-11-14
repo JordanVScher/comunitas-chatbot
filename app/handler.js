@@ -92,7 +92,7 @@ module.exports = async (context) => {
 				await events.addCustomAction(context.session.user.id, 'Usuario nao quer resposta');
 				break;
 			case 'reAskMail':
-				await context.sendText('Esse e-mail não parece estar correto. Tente um formato como "iara@gmail.com".', await flow.askMail);
+				await context.sendText('Esse e-mail não parece estar correto. Tente um formato como "iara@gmail.com. Ou clique em "Sair" para continuar me fazendo perguntas.', await flow.askMail);
 				break;
 			case 'sendMail':
 				await dialogs.sendFullDoubt(context);

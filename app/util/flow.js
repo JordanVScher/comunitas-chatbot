@@ -14,7 +14,7 @@ module.exports = {
 	},
 	intro: {
 		txt1: 'Oie, tudo bem? Eu sou a Iara, a assistente digital da Comunitas! Eu vou te ajudar no que precisar em relação a gestão pública. É só me perguntar o que precisa! Ah, sou muito boa de finanças públicas, mas estou estudando diariamente para aprender sobre os outros temas.\nConta comigo!',
-		txt2: 'Como posso te ajudar? Basta digitar de forma breve qual sua dúvida sobre o CAUC. \n\nPor exemplo: Quero saber o que é o CAUC',
+		txt2: 'Como posso te ajudar? Basta digitar de forma breve qual sua dúvida sobre o CAUC.',
 	},
 	eMailFirst: {
 		quick_replies: [
